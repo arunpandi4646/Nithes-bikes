@@ -93,7 +93,7 @@ export default function AdminPage() {
                   <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="price" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : e.target.value)} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="description" control={form.control} render={({ field }) => (
                   <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>

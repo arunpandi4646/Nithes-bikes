@@ -24,7 +24,7 @@ const bikeFormSchema = z.object({
     .refine((val) => val === '' || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), {
       message: 'Price must be a positive number',
     })
-    .transform((val) => val === '' ? '' : parseFloat(val)),
+    .transform((val) => val === '' ? 0 : parseFloat(val)),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),

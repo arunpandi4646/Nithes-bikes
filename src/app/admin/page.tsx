@@ -21,7 +21,7 @@ const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.preprocess(
     (val) => parseFloat(String(val)),
-    z.number().positive('Price must be a positive number')
+    z.number({ invalid_type_error: 'Price must be a number' }).positive('Price must be a positive number')
   ),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
@@ -66,7 +66,7 @@ export default function AdminPage() {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset();
+      form.reset({ name: '', price: 0, description: '', features: '' });
       setImagePreview(null);
     } catch (error) {
       console.error('Error adding bike:', error);
@@ -93,7 +93,7 @@ export default function AdminPage() {
                   <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="price" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} onChange={e => field.onChange(parseFloat(e.target.value) || 0)} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} onChange={e => field.onChange(e.target.value === '' ? '' : parseFloat(e.target.value))} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="description" control={form.control} render={({ field }) => (
                   <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>

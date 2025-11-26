@@ -8,10 +8,17 @@ export default {
     './src/app/**/*.{js,ts,jsx,tsx,mdx}',
   ],
   theme: {
+    container: {
+      center: true,
+      padding: '2rem',
+      screens: {
+        '2xl': '1200px',
+      },
+    },
     extend: {
       fontFamily: {
-        body: ['Inter', 'sans-serif'],
-        headline: ['Inter', 'sans-serif'],
+        body: ['Poppins', 'sans-serif'],
+        headline: ['Poppins', 'sans-serif'],
         code: ['monospace'],
       },
       colors: {
@@ -65,6 +72,10 @@ export default {
           border: 'hsl(var(--sidebar-border))',
           ring: 'hsl(var(--sidebar-ring))',
         },
+        nav: {
+          background: 'hsl(var(--nav-background))',
+          foreground: 'hsl(var(--nav-foreground))',
+        },
       },
       borderRadius: {
         lg: 'var(--radius)',
@@ -92,6 +103,10 @@ export default {
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+      },
+      boxShadow: {
+        DEFAULT: '0 5px 15px rgba(0, 0, 0, 0.08)',
+        hover: '0 10px 25px rgba(0, 0, 0, 0.15)',
       },
     },
   },

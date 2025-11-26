@@ -11,9 +11,8 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { CloudUpload, Loader2 } from 'lucide-react';
-import { db, storage } from '@/lib/firebase';
+import { db } from '@/lib/firebase';
 import { addDoc, collection } from 'firebase/firestore';
-import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -22,13 +21,10 @@ import { useAppContext } from '@/contexts/AppContext';
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.string()
-    .refine((val) => !isNaN(parseFloat(val)), {
-      message: 'Price must be a valid number',
-    })
-    .transform((val) => parseFloat(val))
-    .refine((val) => val > 0, {
+    .refine((val) => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
       message: 'Price must be a positive number',
-    }),
+    })
+    .transform((val) => parseFloat(val)),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
@@ -45,7 +41,7 @@ export default function AdminPage() {
 
   const form = useForm<z.input<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', price: '0', description: '', features: '' },
+    defaultValues: { name: '', price: '', description: '', features: '' },
   });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -61,13 +57,25 @@ export default function AdminPage() {
   async function onSubmit(values: z.input<typeof bikeFormSchema>) {
     setLoading(true);
     try {
-      // The values are already parsed by Zod, so we can cast to the output type
-      const parsedValues = values as BikeFormData;
+      const parsedValues = bikeFormSchema.parse(values);
 
       const imageFile = parsedValues.image[0] as File;
-      const storageRef = ref(storage, `bikes/${Date.now()}_${imageFile.name}`);
-      const uploadResult = await uploadBytes(storageRef, imageFile);
-      const imageUrl = await getDownloadURL(uploadResult.ref);
+
+      const formData = new FormData();
+      formData.append('file', imageFile);
+      formData.append('upload_preset', 'ml_default');
+
+      const response = await fetch('https://api.cloudinary.com/v1_1/dry3pzan6/image/upload', {
+        method: 'POST',
+        body: formData,
+      });
+
+      if (!response.ok) {
+        throw new Error('Image upload failed');
+      }
+
+      const data = await response.json();
+      const imageUrl = data.secure_url;
 
       await addDoc(collection(db, 'bikes'), {
         name: parsedValues.name,
@@ -79,7 +87,7 @@ export default function AdminPage() {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset({ name: '', price: '0', description: '', features: '', image: undefined });
+      form.reset({ name: '', price: '', description: '', features: '', image: undefined });
       setImagePreview(null);
       
       setActiveSection('bikes');
@@ -87,7 +95,11 @@ export default function AdminPage() {
 
     } catch (error) {
       console.error('Error adding bike:', error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
+      if (error instanceof z.ZodError) {
+        toast({ variant: 'destructive', title: 'Invalid data', description: 'Please check the form fields.' });
+      } else {
+        toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
+      }
     } finally {
         setLoading(false);
     }

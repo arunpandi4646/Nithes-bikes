@@ -41,10 +41,23 @@ export default function ContactSection() {
   });
 
   function onSubmit(values: z.infer<typeof formSchema>) {
-    console.log(values);
+    const whatsappNumber = '919360997425';
+    const messageText = `*New Inquiry from Website*
+
+*Name:* ${values.name}
+*Email:* ${values.email}
+*Phone:* ${values.phone}
+
+*Message:*
+${values.message}`;
+    
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messageText)}`;
+    
+    window.open(whatsappUrl, '_blank');
+    
     toast({
-      title: 'Message Sent!',
-      description: 'Thank you for contacting us. We will get back to you soon.',
+      title: 'Redirecting to WhatsApp',
+      description: 'Your message is ready to be sent.',
     });
     form.reset();
   }

@@ -33,7 +33,7 @@ const verifyAdminFlow = ai.defineFlow(
   async (input) => {
     // In a real application, you might check a database or use custom claims.
     // For now, we'll just check against a hardcoded admin email.
-    const isAdmin = input.email === 'admin@example.com';
+    const isAdmin = input.email === 'admin@gmail.com';
     return { isAdmin };
   }
 );

@@ -96,6 +96,7 @@ export default function AdminPage() {
       });
       setImagePreview(null);
       
+      // Navigate to user-facing bikes page
       setActiveSection('bikes');
       router.push('/');
 

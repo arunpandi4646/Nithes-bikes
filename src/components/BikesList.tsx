@@ -39,8 +39,22 @@ export default function BikesList() {
         setLoading(false);
       },
       (error) => {
-        console.error('Error fetching bikes:', error);
+        console.error('Error fetching bikes with ordering:', error);
         setLoading(false);
+        // Fallback to fetching without ordering if index is not ready
+        const fallbackQuery = collection(db, 'bikes');
+        const fallbackUnsubscribe = onSnapshot(fallbackQuery, (snapshot) => {
+          const bikesData = snapshot.docs.map((doc) => ({
+            id: doc.id,
+            ...doc.data(),
+          })) as Bike[];
+          setBikes(bikesData);
+          setLoading(false);
+        }, (fallbackError) => {
+            console.error('Error fetching bikes with fallback:', fallbackError);
+            setLoading(false);
+        });
+        return () => fallbackUnsubscribe();
       }
     );
 
@@ -51,11 +65,15 @@ export default function BikesList() {
     return (
         <div className="grid grid-cols-1 gap-8 sm:grid-cols-2 lg:grid-cols-3">
         {Array.from({ length: 6 }).map((_, i) => (
-          <div key={i} className="flex flex-col space-y-3">
+          <div key={i} className="flex flex-col space-y-3 rounded-lg border p-4">
             <Skeleton className="h-[224px] w-full rounded-xl" />
             <div className="space-y-2">
-              <Skeleton className="h-4 w-[250px]" />
-              <Skeleton className="h-4 w-[200px]" />
+              <Skeleton className="h-6 w-3/4" />
+              <Skeleton className="h-5 w-1/2" />
+              <div className="flex gap-4 pt-2">
+                <Skeleton className="h-4 w-1/4" />
+                <Skeleton className="h-4 w-1/4" />
+              </div>
             </div>
           </div>
         ))}
@@ -65,8 +83,11 @@ export default function BikesList() {
 
   if (bikes.length === 0) {
     return (
-      <div className="flex min-h-[400px] items-center justify-center">
-        <p className="text-lg text-muted-foreground">No bikes available yet.</p>
+      <div className="flex min-h-[400px] items-center justify-center rounded-lg border border-dashed">
+        <div className="text-center">
+            <p className="text-lg font-medium text-muted-foreground">No bikes available yet.</p>
+            <p className="text-sm text-muted-foreground">New bikes added by the admin will appear here instantly.</p>
+        </div>
       </div>
     );
   }

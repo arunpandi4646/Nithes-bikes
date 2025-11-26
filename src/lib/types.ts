@@ -3,7 +3,7 @@ import type { LucideIcon } from 'lucide-react';
 export interface Bike {
   id: string; // Changed to string for Firestore document ID
   name: string;
-  price: string;
+  price: number;
   description: string;
   image: string;
   imageHint: string;

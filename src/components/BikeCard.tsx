@@ -50,7 +50,7 @@ export default function BikeCard({ bike }: BikeCardProps) {
       </CardHeader>
       <CardContent className="flex-grow p-6">
         <CardTitle className="mb-2 text-xl">{bike.name}</CardTitle>
-        <p className="mb-4 text-xl font-bold text-primary">₹{bike.price}</p>
+        <p className="mb-4 text-xl font-bold text-primary">₹{Number(bike.price).toLocaleString('en-IN')}</p>
         <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2">
           {bike.features?.map((feature, index) => (
             <div key={index} className="flex items-center gap-1.5 text-sm text-muted-foreground">

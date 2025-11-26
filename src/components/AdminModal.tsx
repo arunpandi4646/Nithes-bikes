@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -18,7 +18,10 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } f
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
-  price: z.string().min(1, 'Price is required'),
+  price: z.preprocess(
+    (a) => parseFloat(z.string().parse(a)),
+    z.number().positive('Price must be a positive number')
+  ),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
@@ -36,8 +39,15 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
 
   const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', price: '', description: '', features: '' },
+    defaultValues: { name: '', price: 0, description: '', features: '' },
   });
+
+  useEffect(() => {
+    if (!isOpen) {
+      form.reset();
+      setImagePreview(null);
+    }
+  }, [isOpen, form]);
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
@@ -59,7 +69,7 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
 
       await addDoc(collection(db, 'bikes'), {
         name: values.name,
-        price: Number(values.price).toLocaleString('en-IN'),
+        price: values.price,
         description: values.description,
         image: imageUrl,
         imageHint: "new motorcycle",
@@ -67,8 +77,6 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset();
-      setImagePreview(null);
       onClose();
     } catch (error) {
       console.error('Error adding bike:', error);
@@ -119,7 +127,7 @@ export default function AdminModal({ isOpen, onClose }: AdminModalProps) {
                     )}/>
                     {imagePreview && <Image src={imagePreview} alt="Preview" width={150} height={100} className="mt-2 rounded-md object-cover" />}
                     <div className="flex justify-end gap-2">
-                        <Button type="button" variant="ghost" onClick={onClose}>Cancel</Button>
+                        <Button type="button" variant="ghost" onClick={onClose} disabled={loading}>Cancel</Button>
                         <Button type="submit" disabled={loading}>
                             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                             Add Bike

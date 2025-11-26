@@ -22,7 +22,7 @@ import { useAppContext } from '@/contexts/AppContext';
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.preprocess(
-    (val) => (val === '' ? NaN : parseFloat(String(val))),
+    (val) => parseFloat(String(val)),
     z.number({ invalid_type_error: 'Price must be a number' }).positive('Price must be a positive number')
   ),
   description: z.string().min(10, 'Description is too short'),

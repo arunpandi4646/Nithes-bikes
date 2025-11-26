@@ -52,7 +52,7 @@ export default function BikeCard({ bike }: BikeCardProps) {
         <CardTitle className="mb-2 text-xl">{bike.name}</CardTitle>
         <p className="mb-4 text-xl font-bold text-primary">₹{bike.price}</p>
         <div className="mb-4 flex flex-wrap gap-x-4 gap-y-2">
-          {bike.features.map((feature, index) => (
+          {bike.features?.map((feature, index) => (
             <div key={index} className="flex items-center gap-1.5 text-sm text-muted-foreground">
               <Check className="h-4 w-4 text-green-500" />
               <span>{feature}</span>

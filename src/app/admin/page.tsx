@@ -10,27 +10,28 @@ import { Input } from '@/components/ui/input';
 import { Textarea } from '@/components/ui/textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '@/components/ui/form';
 import { useToast } from '@/hooks/use-toast';
-import { initialBikes } from '@/lib/data';
-import type { Bike } from '@/lib/types';
 import Image from 'next/image';
-import { CloudUpload, Trash2 } from 'lucide-react';
+import { CloudUpload, Loader2 } from 'lucide-react';
+import { db, storage } from '@/lib/firebase';
+import { addDoc, collection } from 'firebase/firestore';
+import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.string().min(1, 'Price is required'),
   description: z.string().min(10, 'Description is too short'),
+  features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
 });
 
 export default function AdminDashboard() {
-  const [bikes, setBikes] = useState<Bike[]>(initialBikes);
-  const [nextId, setNextId] = useState(bikes.length + 1);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
+  const [loading, setLoading] = useState(false);
 
   const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', price: '', description: '' },
+    defaultValues: { name: '', price: '', description: '', features: '' },
   });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -43,43 +44,43 @@ export default function AdminDashboard() {
     }
   }
 
-  function onSubmit(values: z.infer<typeof bikeFormSchema>) {
-    const reader = new FileReader();
-    reader.onload = (e) => {
-      const newBike: Bike = {
-        id: nextId,
+  async function onSubmit(values: z.infer<typeof bikeFormSchema>) {
+    setLoading(true);
+    try {
+      const imageFile = values.image[0] as File;
+      const storageRef = ref(storage, `bikes/${Date.now()}_${imageFile.name}`);
+      const uploadResult = await uploadBytes(storageRef, imageFile);
+      const imageUrl = await getDownloadURL(uploadResult.ref);
+
+      await addDoc(collection(db, 'bikes'), {
         name: values.name,
         price: Number(values.price).toLocaleString('en-IN'),
         description: values.description,
-        image: e.target?.result as string,
+        image: imageUrl,
         imageHint: "new motorcycle",
-        features: ['New', 'Custom', 'Top Speed'],
-      };
-      setBikes((prev) => [...prev, newBike]);
-      setNextId((prev) => prev + 1);
+        features: values.features.split(',').map(f => f.trim()),
+      });
+      
       toast({ title: 'Success', description: 'Bike added successfully.' });
       form.reset();
       setImagePreview(null);
-    };
-    reader.readAsDataURL(values.image[0]);
-  }
-
-  function deleteBike(id: number) {
-    if (window.confirm('Are you sure you want to delete this bike?')) {
-      setBikes((prev) => prev.filter((bike) => bike.id !== id));
-      toast({ title: 'Success', description: 'Bike deleted successfully.' });
+    } catch (error) {
+      console.error('Error adding bike:', error);
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
+    } finally {
+        setLoading(false);
     }
   }
 
   return (
-    <div>
+    <div className="container py-16 md:py-24">
         <div className="mb-12 text-center">
             <h2 className="text-3xl font-bold text-foreground md:text-4xl">Admin Panel</h2>
             <p className="mx-auto mt-4 max-w-2xl text-muted-foreground">
-                Manage your bike inventory and website content
+                Add a new bike to your inventory
             </p>
         </div>
-        <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+        <div className="mx-auto max-w-2xl">
             <Card>
                 <CardHeader>
                 <CardTitle>Add New Bike</CardTitle>
@@ -95,6 +96,9 @@ export default function AdminDashboard() {
                     )}/>
                     <FormField name="description" control={form.control} render={({ field }) => (
                         <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>
+                    )}/>
+                    <FormField name="features" control={form.control} render={({ field }) => (
+                        <FormItem><FormLabel>Features (comma-separated)</FormLabel><FormControl><Input placeholder="e.g., 155cc Engine, ABS, 35 kmpl" {...field} /></FormControl><FormMessage /></FormItem>
                     )}/>
                     <FormField name="image" control={form.control} render={({ field }) => (
                         <FormItem>
@@ -112,31 +116,12 @@ export default function AdminDashboard() {
                         </FormItem>
                     )}/>
                     {imagePreview && <Image src={imagePreview} alt="Preview" width={150} height={100} className="mt-2 rounded-md object-cover" />}
-                    <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
+                    <Button type="submit" className="w-full" disabled={loading}>
+                        {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                         Add Bike
                     </Button>
                     </form>
                 </Form>
-                </CardContent>
-            </Card>
-            <Card>
-                <CardHeader><CardTitle>Manage Bikes</CardTitle></CardHeader>
-                <CardContent className="max-h-[600px] overflow-y-auto">
-                <div className="space-y-4">
-                    {bikes.length > 0 ? bikes.map(bike => (
-                    <div key={bike.id} className="flex items-center gap-4 rounded-md border p-4">
-                        <Image src={bike.image} alt={bike.name} width={100} height={75} className="rounded-md object-cover" data-ai-hint={bike.imageHint} />
-                        <div className="flex-grow">
-                        <h4 className="font-semibold">{bike.name}</h4>
-                        <p className="text-sm text-primary">₹{bike.price}</p>
-                        <p className="text-xs text-muted-foreground line-clamp-2">{bike.description}</p>
-                        </div>
-                        <Button variant="ghost" size="icon" className="text-destructive hover:bg-destructive/10" onClick={() => deleteBike(bike.id)}>
-                            <Trash2 className="h-4 w-4" />
-                        </Button>
-                    </div>
-                    )) : <p className="py-8 text-center text-muted-foreground">No bikes added yet.</p>}
-                </div>
                 </CardContent>
             </Card>
         </div>

@@ -39,7 +39,7 @@ export default function AdminPage() {
 
   const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', description: '', features: '' },
+    defaultValues: { name: '', price: 0, description: '', features: '' },
   });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,7 +70,7 @@ export default function AdminPage() {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset({ name: '', description: '', features: '' });
+      form.reset({ name: '', price: 0, description: '', features: '' });
       setImagePreview(null);
       
       setActiveSection('bikes');

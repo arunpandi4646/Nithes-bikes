@@ -8,8 +8,8 @@ import BikesSection from '@/components/sections/BikesSection';
 import ServicesSection from '@/components/sections/ServicesSection';
 import AboutSection from '@/components/sections/AboutSection';
 import ContactSection from '@/components/sections/ContactSection';
-import AdminSection from '@/components/sections/AdminSection';
 import LoginModal from '@/components/auth/LoginModal';
+import AdminPage from '@/app/admin/page';
 
 function PageContent() {
   const { 
@@ -27,7 +27,7 @@ function PageContent() {
         {activeSection === 'services' && <ServicesSection />}
         {activeSection === 'about' && <AboutSection />}
         {activeSection === 'contact' && <ContactSection />}
-        {activeSection === 'admin' && <AdminSection />}
+        {activeSection === 'admin' && <AdminPage />}
       </main>
       <Footer />
       <LoginModal 

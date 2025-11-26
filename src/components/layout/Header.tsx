@@ -26,13 +26,17 @@ export default function Header() {
     { label: 'Services', section: 'services' },
     { label: 'About', section: 'about' },
     { label: 'Contact', section: 'contact' },
-    { label: 'Admin', section: 'admin' },
   ];
 
   const handleNavClick = (section: Section) => {
     setActiveSection(section);
     setMobileMenuOpen(false);
   };
+  
+  const handleAdminClick = () => {
+    setActiveSection('admin');
+    setMobileMenuOpen(false);
+  }
 
   return (
     <header className="sticky top-0 z-50 w-full bg-nav-background/95 text-nav-foreground shadow-md backdrop-blur-sm">
@@ -78,6 +82,22 @@ export default function Header() {
                 </a>
               </li>
             ))}
+            <li>
+                 <a
+                  onClick={handleAdminClick}
+                  className={cn(
+                    'relative cursor-pointer text-base font-medium text-white transition-colors hover:text-primary',
+                    'after:absolute after:bottom-[-4px] after:left-0 after:h-[3px] after:w-0 after:bg-primary after:transition-all after:duration-300 after:content-[""]',
+                    'hover:after:w-full',
+                    {
+                      'text-primary after:w-full':
+                        activeSection === 'admin',
+                    }
+                  )}
+                >
+                  Admin
+                </a>
+            </li>
             <div className="mt-4 flex flex-col gap-2 border-t border-gray-700 pt-4 md:hidden">
               {authLoading ? null : user ? (
                 <UserMenu />

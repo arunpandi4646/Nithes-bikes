@@ -22,7 +22,7 @@ import { useAppContext } from '@/contexts/AppContext';
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.preprocess(
-    (val) => parseFloat(String(val)),
+    (val) => (val === '' ? NaN : parseFloat(String(val))),
     z.number({ invalid_type_error: 'Price must be a number' }).positive('Price must be a positive number')
   ),
   description: z.string().min(10, 'Description is too short'),
@@ -39,7 +39,7 @@ export default function AdminPage() {
 
   const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', price: 0, description: '', features: '' },
+    defaultValues: { name: '', description: '', features: '' },
   });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -70,7 +70,7 @@ export default function AdminPage() {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset({ name: '', price: 0, description: '', features: '' });
+      form.reset({ name: '', description: '', features: '' });
       setImagePreview(null);
       
       setActiveSection('bikes');

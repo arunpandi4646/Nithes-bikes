@@ -5,6 +5,8 @@ import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import BikeCard from './BikeCard';
 import { Skeleton } from '@/components/ui/skeleton';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 interface Bike {
   id: string;
@@ -40,6 +42,16 @@ export default function BikesList() {
       },
       (error) => {
         console.error('Error fetching bikes with ordering:', error);
+        
+        // Emit a contextual error for permission issues
+        if (error.code === 'permission-denied') {
+            const permissionError = new FirestorePermissionError({
+                path: collection(db, 'bikes').path,
+                operation: 'list',
+            });
+            errorEmitter.emit('permission-error', permissionError);
+        }
+
         setLoading(false);
         // Fallback to fetching without ordering if index is not ready
         const fallbackQuery = collection(db, 'bikes');
@@ -52,6 +64,13 @@ export default function BikesList() {
           setLoading(false);
         }, (fallbackError) => {
             console.error('Error fetching bikes with fallback:', fallbackError);
+            if (fallbackError.code === 'permission-denied') {
+                const permissionError = new FirestorePermissionError({
+                    path: collection(db, 'bikes').path,
+                    operation: 'list',
+                });
+                errorEmitter.emit('permission-error', permissionError);
+            }
             setLoading(false);
         });
         return () => fallbackUnsubscribe();

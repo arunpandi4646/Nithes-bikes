@@ -12,11 +12,13 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { CloudUpload, Loader2 } from 'lucide-react';
 import { db } from '@/lib/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, DocumentReference, Firestore } from 'firebase/firestore';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { useAppContext } from '@/contexts/AppContext';
+import { errorEmitter } from '@/firebase/error-emitter';
+import { FirestorePermissionError } from '@/firebase/errors';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
@@ -25,6 +27,23 @@ const bikeFormSchema = z.object({
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
 });
+
+type BikeFormData = z.infer<typeof bikeFormSchema>;
+
+
+async function addBike(db: Firestore, bikeData: Omit<BikeFormData, 'image'> & { image: string, imageHint: string, createdAt: Date }) {
+  const bikesCollection = collection(db, 'bikes');
+  
+  addDoc(bikesCollection, bikeData).catch(async (serverError) => {
+    const permissionError = new FirestorePermissionError({
+      path: (bikesCollection as DocumentReference).path,
+      operation: 'create',
+      requestResourceData: bikeData,
+    });
+    errorEmitter.emit('permission-error', permissionError);
+  });
+}
+
 
 export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -74,7 +93,7 @@ export default function AdminPage() {
       const data = await response.json();
       const imageUrl = data.secure_url;
 
-      await addDoc(collection(db, 'bikes'), {
+      const bikePayload = {
         name: values.name,
         price: parseFloat(values.price),
         description: values.description,
@@ -82,19 +101,20 @@ export default function AdminPage() {
         imageHint: "new motorcycle",
         features: values.features.split(',').map(f => f.trim()),
         createdAt: new Date(),
-      });
+      };
+
+      await addBike(db, bikePayload);
       
       toast({ title: 'Success', description: 'Bike added successfully and will appear instantly!' });
       form.reset();
       setImagePreview(null);
       
-      // Navigate to user-facing bikes page
       setActiveSection('bikes');
       router.push('/');
 
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error adding bike:', error);
-      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
+      toast({ variant: 'destructive', title: 'Error', description: error.message || 'Failed to add bike.' });
     } finally {
         setLoading(false);
     }

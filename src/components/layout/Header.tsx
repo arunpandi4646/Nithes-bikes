@@ -2,8 +2,7 @@
 
 import { useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
-import { Menu, X } from 'lucide-react';
+import { Menu, X, PlusCircle } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
 import { Button } from '@/components/ui/button';
 import { UserMenu } from '@/components/auth/UserMenu';
@@ -15,8 +14,10 @@ export default function Header() {
     activeSection,
     setActiveSection,
     setLoginModalOpen,
+    setAdminModalOpen,
     user,
     authLoading,
+    isAdmin
   } = useAppContext();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -79,7 +80,14 @@ export default function Header() {
             ))}
             <div className="mt-4 flex flex-col gap-2 border-t border-gray-700 pt-4 md:hidden">
               {authLoading ? null : user ? (
-                <UserMenu />
+                <>
+                  {isAdmin && (
+                    <Button onClick={() => setAdminModalOpen(true)}>
+                      <PlusCircle className="mr-2 h-4 w-4" /> Add Bike
+                    </Button>
+                  )}
+                  <UserMenu />
+                </>
               ) : (
                 <>
                   <Button variant="outline" className="w-full justify-center border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => { setLoginModalOpen(true); setMobileMenuOpen(false); }}>Login</Button>
@@ -91,7 +99,14 @@ export default function Header() {
         
         <div className="hidden items-center gap-2 md:flex">
           {authLoading ? null : user ? (
-            <UserMenu />
+            <>
+               {isAdmin && (
+                <Button onClick={() => setAdminModalOpen(true)}>
+                  <PlusCircle className="mr-2 h-4 w-4" /> Add Bike
+                </Button>
+              )}
+              <UserMenu />
+            </>
           ) : (
             <>
               <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => setLoginModalOpen(true)}>Login</Button>

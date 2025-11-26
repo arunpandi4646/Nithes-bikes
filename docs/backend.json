@@ -1,0 +1,59 @@
+{
+  "entities": {
+    "Bike": {
+      "title": "Bike",
+      "description": "Represents a motorcycle available for sale.",
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "The name of the bike model."
+        },
+        "price": {
+          "type": "string",
+          "description": "The price of the bike."
+        },
+        "description": {
+          "type": "string",
+          "description": "A brief description of the bike."
+        },
+        "image": {
+          "type": "string",
+          "format": "uri",
+          "description": "URL of the bike's image."
+        },
+        "imageHint": {
+          "type": "string",
+          "description": "A hint for AI image search."
+        },
+        "features": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          },
+          "description": "A list of key features of the bike."
+        }
+      },
+      "required": [
+        "name",
+        "price",
+        "description",
+        "image"
+      ]
+    }
+  },
+  "auth": {
+    "providers": [
+      "password",
+      "google.com"
+    ]
+  },
+  "firestore": {
+    "/bikes/{bikeId}": {
+      "schema": {
+        "$ref": "#/entities/Bike"
+      },
+      "description": "Stores information about individual bikes for sale."
+    }
+  }
+}

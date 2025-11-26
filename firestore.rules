@@ -1,0 +1,25 @@
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Helper functions
+    function isAuth() {
+      return request.auth != null;
+    }
+
+    function isAdmin() {
+      // For now, we will identify admins by a specific email.
+      // In a real application, you should use custom claims.
+      return isAuth() && request.auth.token.email == "admin@example.com";
+    }
+
+    // Bikes collection rules
+    match /bikes/{bikeId} {
+      // Anyone can view the bike listings
+      allow read: if true;
+      
+      // Only admins can create, update, or delete bike listings
+      allow write: if isAdmin();
+    }
+  }
+}

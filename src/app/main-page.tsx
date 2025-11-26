@@ -9,12 +9,15 @@ import ServicesSection from '@/components/sections/ServicesSection';
 import AboutSection from '@/components/sections/AboutSection';
 import ContactSection from '@/components/sections/ContactSection';
 import LoginModal from '@/components/auth/LoginModal';
+import AdminModal from '@/components/AdminModal';
 
 function PageContent() {
   const { 
     activeSection, 
     isLoginModalOpen, 
     setLoginModalOpen,
+    isAdminModalOpen,
+    setAdminModalOpen,
   } = useAppContext();
 
   return (
@@ -31,6 +34,10 @@ function PageContent() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setLoginModalOpen(false)}
+      />
+      <AdminModal
+        isOpen={isAdminModalOpen}
+        onClose={() => setAdminModalOpen(false)}
       />
     </div>
   );

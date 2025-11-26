@@ -16,20 +16,6 @@ const firebaseConfig = {
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
-
-if (typeof window !== 'undefined' && process.env.NODE_ENV === 'development') {
-    // In a development environment on the client, you can connect to the emulator
-    try {
-        auth.config.emulator = {
-            host: 'localhost'
-        };
-    } catch(e) {
-        //This can fail if the emulator is not running.
-        console.error(e)
-    }
-}
-auth.tenantId = 'nitheesh-garage.firebaseapp.com';
-
 const db = getFirestore(app);
 const storage = getStorage(app);
 

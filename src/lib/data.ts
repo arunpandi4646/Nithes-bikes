@@ -1,4 +1,4 @@
-import type { Bike, Service } from './types';
+import type { Service } from './types';
 import {
   Bike as BikeIcon,
   Wrench,
@@ -7,10 +7,6 @@ import {
   BadgeCheck,
   ArrowRightLeft,
 } from 'lucide-react';
-
-export const initialBikes: Bike[] = [
-  // This data is now fetched from Firestore. This can be kept as fallback or removed.
-];
 
 export const services: Service[] = [
   {

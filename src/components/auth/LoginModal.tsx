@@ -36,7 +36,6 @@ const formSchema = z.object({
 interface LoginModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSwitchToSignup: () => void;
 }
 
 const GoogleIcon = () => (
@@ -49,7 +48,7 @@ const GoogleIcon = () => (
 );
 
 
-export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginModalProps) {
+export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
 
@@ -178,12 +177,6 @@ export default function LoginModal({ isOpen, onClose, onSwitchToSignup }: LoginM
           <Button variant="outline" className="w-full" onClick={handleGoogleSignIn} disabled={loading}>
             <GoogleIcon /> Continue with Google
           </Button>
-          <p className="mt-4 text-center text-sm text-muted-foreground">
-            Don&apos;t have an account?{' '}
-            <Button variant="link" className="p-0 h-auto" onClick={onSwitchToSignup}>
-              Sign up
-            </Button>
-          </p>
         </div>
       </DialogContent>
     </Dialog>

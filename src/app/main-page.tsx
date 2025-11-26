@@ -10,29 +10,13 @@ import AboutSection from '@/components/sections/AboutSection';
 import ContactSection from '@/components/sections/ContactSection';
 import AdminSection from '@/components/sections/AdminSection';
 import LoginModal from '@/components/auth/LoginModal';
-import SignupModal from '@/components/auth/SignupModal';
 
 function PageContent() {
   const { 
     activeSection, 
     isLoginModalOpen, 
-    setLoginModalOpen, 
-    isSignupModalOpen, 
-    setSignupModalOpen,
-    setLoginModalOpen: showLoginModal,
-    setActiveSection
+    setLoginModalOpen,
   } = useAppContext();
-
-  const showSignupModal = () => {
-    setLoginModalOpen(false);
-    setSignupModalOpen(true);
-  }
-
-  const switchFromSignupToLogin = () => {
-    setSignupModalOpen(false);
-    setLoginModalOpen(true);
-  }
-
 
   return (
     <div className="flex min-h-screen flex-col">
@@ -49,12 +33,6 @@ function PageContent() {
       <LoginModal 
         isOpen={isLoginModalOpen} 
         onClose={() => setLoginModalOpen(false)}
-        onSwitchToSignup={showSignupModal}
-      />
-      <SignupModal 
-        isOpen={isSignupModalOpen} 
-        onClose={() => setSignupModalOpen(false)}
-        onSwitchToLogin={switchFromSignupToLogin}
       />
     </div>
   );

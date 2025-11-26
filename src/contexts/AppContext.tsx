@@ -11,8 +11,6 @@ interface AppContextType {
   setActiveSection: (section: Section) => void;
   isLoginModalOpen: boolean;
   setLoginModalOpen: (isOpen: boolean) => void;
-  isSignupModalOpen: boolean;
-  setSignupModalOpen: (isOpen: boolean) => void;
   user: User | null;
   authLoading: boolean;
 }
@@ -22,7 +20,6 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export function AppProvider({ children }: { children: ReactNode }) {
   const [activeSection, setActiveSectionState] = useState<Section>('home');
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
-  const [isSignupModalOpen, setSignupModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
 
@@ -44,8 +41,6 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setActiveSection,
     isLoginModalOpen,
     setLoginModalOpen,
-    isSignupModalOpen,
-    setSignupModalOpen,
     user,
     authLoading,
   };

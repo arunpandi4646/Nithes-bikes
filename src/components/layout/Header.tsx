@@ -15,7 +15,6 @@ export default function Header() {
     activeSection,
     setActiveSection,
     setLoginModalOpen,
-    setSignupModalOpen,
     user,
     authLoading,
   } = useAppContext();
@@ -85,7 +84,6 @@ export default function Header() {
               ) : (
                 <>
                   <Button variant="outline" className="w-full justify-center border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => { setLoginModalOpen(true); setMobileMenuOpen(false); }}>Login</Button>
-                  <Button className="w-full justify-center" onClick={() => { setSignupModalOpen(true); setMobileMenuOpen(false); }}>Sign Up</Button>
                 </>
               )}
             </div>
@@ -98,7 +96,6 @@ export default function Header() {
           ) : (
             <>
               <Button variant="outline" className="border-primary text-primary hover:bg-primary hover:text-primary-foreground" onClick={() => setLoginModalOpen(true)}>Login</Button>
-              <Button onClick={() => setSignupModalOpen(true)}>Sign Up</Button>
             </>
           )}
         </div>

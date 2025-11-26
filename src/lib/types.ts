@@ -16,4 +16,4 @@ export interface Service {
   icon: LucideIcon;
 }
 
-export type Section = 'home' | 'bikes' | 'services' | 'about' | 'contact' | 'admin';
+export type Section = 'home' | 'bikes' | 'services' | 'about' | 'contact';

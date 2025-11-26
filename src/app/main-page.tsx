@@ -9,7 +9,6 @@ import ServicesSection from '@/components/sections/ServicesSection';
 import AboutSection from '@/components/sections/AboutSection';
 import ContactSection from '@/components/sections/ContactSection';
 import LoginModal from '@/components/auth/LoginModal';
-import AdminPage from '@/app/admin/page';
 
 function PageContent() {
   const { 
@@ -27,7 +26,6 @@ function PageContent() {
         {activeSection === 'services' && <ServicesSection />}
         {activeSection === 'about' && <AboutSection />}
         {activeSection === 'contact' && <ContactSection />}
-        {activeSection === 'admin' && <AdminPage />}
       </main>
       <Footer />
       <LoginModal 

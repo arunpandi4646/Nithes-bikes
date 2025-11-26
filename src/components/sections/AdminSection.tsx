@@ -15,7 +15,7 @@ import { checkAdminStatus } from '@/app/actions';
 import { initialBikes } from '@/lib/data';
 import type { Bike } from '@/lib/types';
 import Image from 'next/image';
-import { CloudUpload, Loader2, Trash2 } from 'lucide-react';
+import { CloudUpload, Loader2 } from 'lucide-react';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
@@ -93,13 +93,12 @@ function AdminDashboard() {
               )}/>
               <FormField name="image" control={form.control} render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Bike Image</FormLabel>
+                  <FormLabel>Upload Image</FormLabel>
                   <FormControl>
                     <div>
                       <label htmlFor="bikeImage" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-6 text-center hover:bg-accent/50">
-                        <CloudUpload className="mb-2 h-10 w-10 text-muted-foreground" />
-                        <p className="font-semibold text-primary">Click to upload</p>
-                        <p className="text-xs text-muted-foreground">PNG, JPG, or WEBP</p>
+                        <CloudUpload className="mb-2 h-10 w-10 text-primary" />
+                        <span className="text-muted-foreground">Click to upload bike image</span>
                       </label>
                       <Input id="bikeImage" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
                     </div>
@@ -127,8 +126,8 @@ function AdminDashboard() {
                   <p className="text-sm text-primary">₹{bike.price}</p>
                   <p className="text-xs text-muted-foreground line-clamp-2">{bike.description}</p>
                 </div>
-                <Button variant="ghost" size="icon" onClick={() => deleteBike(bike.id)}>
-                  <Trash2 className="h-4 w-4 text-destructive" />
+                <Button variant="destructive" onClick={() => deleteBike(bike.id)}>
+                  Delete
                 </Button>
               </div>
             )) : <p className="py-8 text-center text-muted-foreground">No bikes added yet.</p>}
@@ -177,7 +176,7 @@ export default function AdminSection() {
   }
 
   return (
-    <section className="py-16 md:py-24">
+    <section className="bg-muted/30 py-16 md:py-24">
       <div className="container">
         <div className="mb-12 text-center">
           <h2 className="text-3xl font-bold text-foreground md:text-4xl">Admin Panel</h2>

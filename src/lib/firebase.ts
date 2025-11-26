@@ -1,20 +1,21 @@
 import { initializeApp, getApps, getApp } from 'firebase/app';
 import { getAuth } from 'firebase/auth';
 import { getFirestore } from 'firebase/firestore';
+import { getStorage } from 'firebase/storage';
 
 const firebaseConfig = {
-  apiKey: "AIzaSyCSCFnbac7MsV4xDdD-gx_CG_4q6mGUEMI",
-  authDomain: "nitheesh-garage.firebaseapp.com",
-  projectId: "nitheesh-garage",
-  storageBucket: "nitheesh-garage.firebasestorage.app",
-  messagingSenderId: "839936311214",
-  appId: "1:839936311214:web:52fcc205e21e1bb7ced23f",
-  measurementId: "G-TZQQKCZ8T2"
+  apiKey: "AIzaSyAYjTRGQouFgSJJ689XwKN14fFfsMfK26M",
+  authDomain: "studio-398059978-802b3.firebaseapp.com",
+  projectId: "studio-398059978-802b3",
+  storageBucket: "studio-398059978-802b3.firebasestorage.app",
+  messagingSenderId: "783407561608",
+  appId: "1:783407561608:web:846006efb8aedb500ad83d"
 };
 
 const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
 
 const auth = getAuth(app);
 const db = getFirestore(app);
+const storage = getStorage(app);
 
-export { app, auth, db };
+export { app, auth, db, storage };

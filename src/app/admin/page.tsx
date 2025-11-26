@@ -20,9 +20,7 @@ import { useAppContext } from '@/contexts/AppContext';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
-  price: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
-    message: 'Price must be a positive number',
-  }),
+  price: z.string().min(1, 'Price is required'),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
@@ -87,13 +85,7 @@ export default function AdminPage() {
       });
       
       toast({ title: 'Success', description: 'Bike added successfully and will appear instantly!' });
-      form.reset({
-        name: '',
-        price: '',
-        description: '',
-        features: '',
-        image: undefined
-      });
+      form.reset();
       setImagePreview(null);
       
       // Navigate to user-facing bikes page

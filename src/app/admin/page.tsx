@@ -20,15 +20,13 @@ import { useAppContext } from '@/contexts/AppContext';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
-  price: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) >= 0, {
+  price: z.string().refine(val => !isNaN(parseFloat(val)) && parseFloat(val) > 0, {
     message: 'Price must be a positive number',
   }),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
 });
-
-type BikeFormData = z.infer<typeof bikeFormSchema>;
 
 export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -37,7 +35,7 @@ export default function AdminPage() {
   const router = useRouter();
   const { setActiveSection } = useAppContext();
 
-  const form = useForm<z.input<typeof bikeFormSchema>>({
+  const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
     defaultValues: {
       name: '',
@@ -58,13 +56,10 @@ export default function AdminPage() {
     }
   }
 
-  async function onSubmit(values: z.input<typeof bikeFormSchema>) {
+  async function onSubmit(values: z.infer<typeof bikeFormSchema>) {
     setLoading(true);
     try {
-      const parsedValues = bikeFormSchema.parse(values);
-
-      const imageFile = parsedValues.image[0] as File;
-
+      const imageFile = values.image[0] as File;
       const formData = new FormData();
       formData.append('file', imageFile);
       formData.append('upload_preset', 'ml_default');
@@ -82,16 +77,16 @@ export default function AdminPage() {
       const imageUrl = data.secure_url;
 
       await addDoc(collection(db, 'bikes'), {
-        name: parsedValues.name,
-        price: parseFloat(parsedValues.price),
-        description: parsedValues.description,
+        name: values.name,
+        price: parseFloat(values.price),
+        description: values.description,
         image: imageUrl,
         imageHint: "new motorcycle",
-        features: parsedValues.features.split(',').map(f => f.trim()),
+        features: values.features.split(',').map(f => f.trim()),
         createdAt: serverTimestamp(),
       });
       
-      toast({ title: 'Success', description: 'Bike added successfully.' });
+      toast({ title: 'Success', description: 'Bike added successfully and will appear instantly!' });
       form.reset({
         name: '',
         price: '',
@@ -106,11 +101,7 @@ export default function AdminPage() {
 
     } catch (error) {
       console.error('Error adding bike:', error);
-      if (error instanceof z.ZodError) {
-        toast({ variant: 'destructive', title: 'Invalid data', description: 'Please check the form fields.' });
-      } else {
-        toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
-      }
+      toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });
     } finally {
         setLoading(false);
     }
@@ -133,7 +124,7 @@ export default function AdminPage() {
                   <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="price" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="text" placeholder="e.g., 180000" {...field} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="description" control={form.control} render={({ field }) => (
                   <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>

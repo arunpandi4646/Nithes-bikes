@@ -4,7 +4,6 @@ import { useEffect, useState } from 'react';
 import { collection, onSnapshot, query, orderBy } from 'firebase/firestore';
 import { db } from '@/lib/firebase';
 import BikeCard from './BikeCard';
-import { Loader2 } from 'lucide-react';
 import { Skeleton } from '@/components/ui/skeleton';
 
 interface Bike {

@@ -16,6 +16,8 @@ import { addDoc, collection } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { useAppContext } from '@/contexts/AppContext';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
@@ -32,6 +34,8 @@ export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
+  const { setActiveSection } = useAppContext();
 
   const form = useForm<z.infer<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
@@ -68,6 +72,10 @@ export default function AdminPage() {
       toast({ title: 'Success', description: 'Bike added successfully.' });
       form.reset({ name: '', price: 0, description: '', features: '' });
       setImagePreview(null);
+      
+      setActiveSection('bikes');
+      router.push('/');
+
     } catch (error) {
       console.error('Error adding bike:', error);
       toast({ variant: 'destructive', title: 'Error', description: 'Failed to add bike.' });

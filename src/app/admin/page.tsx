@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useState } from 'react';
@@ -21,7 +22,7 @@ import { useAppContext } from '@/contexts/AppContext';
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
   price: z.string()
-    .refine((val) => val === '' || (!isNaN(parseFloat(val)) && parseFloat(val) > 0), {
+    .refine((val) => val === '' || (!isNaN(parseFloat(val)) && parseFloat(val) >= 0), {
       message: 'Price must be a positive number',
     })
     .transform((val) => val === '' ? 0 : parseFloat(val)),

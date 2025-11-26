@@ -21,14 +21,20 @@ import { useAppContext } from '@/contexts/AppContext';
 
 const bikeFormSchema = z.object({
   name: z.string().min(3, 'Name is too short'),
-  price: z.preprocess(
-    (val) => parseFloat(String(val)),
-    z.number({ invalid_type_error: 'Price must be a number' }).positive('Price must be a positive number')
-  ),
+  price: z.string()
+    .refine((val) => !isNaN(parseFloat(val)), {
+      message: 'Price must be a valid number',
+    })
+    .transform((val) => parseFloat(val))
+    .refine((val) => val > 0, {
+      message: 'Price must be a positive number',
+    }),
   description: z.string().min(10, 'Description is too short'),
   features: z.string().min(3, 'Features are required'),
   image: z.any().refine((files) => files?.length > 0, 'Image is required.'),
 });
+
+type BikeFormData = z.infer<typeof bikeFormSchema>;
 
 export default function AdminPage() {
   const [imagePreview, setImagePreview] = useState<string | null>(null);
@@ -37,9 +43,9 @@ export default function AdminPage() {
   const router = useRouter();
   const { setActiveSection } = useAppContext();
 
-  const form = useForm<z.infer<typeof bikeFormSchema>>({
+  const form = useForm<z.input<typeof bikeFormSchema>>({
     resolver: zodResolver(bikeFormSchema),
-    defaultValues: { name: '', price: 0, description: '', features: '' },
+    defaultValues: { name: '', price: '0', description: '', features: '' },
   });
 
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -52,25 +58,28 @@ export default function AdminPage() {
     }
   }
 
-  async function onSubmit(values: z.infer<typeof bikeFormSchema>) {
+  async function onSubmit(values: z.input<typeof bikeFormSchema>) {
     setLoading(true);
     try {
-      const imageFile = values.image[0] as File;
+      // The values are already parsed by Zod, so we can cast to the output type
+      const parsedValues = values as BikeFormData;
+
+      const imageFile = parsedValues.image[0] as File;
       const storageRef = ref(storage, `bikes/${Date.now()}_${imageFile.name}`);
       const uploadResult = await uploadBytes(storageRef, imageFile);
       const imageUrl = await getDownloadURL(uploadResult.ref);
 
       await addDoc(collection(db, 'bikes'), {
-        name: values.name,
-        price: values.price,
-        description: values.description,
+        name: parsedValues.name,
+        price: parsedValues.price,
+        description: parsedValues.description,
         image: imageUrl,
         imageHint: "new motorcycle",
-        features: values.features.split(',').map(f => f.trim()),
+        features: parsedValues.features.split(',').map(f => f.trim()),
       });
       
       toast({ title: 'Success', description: 'Bike added successfully.' });
-      form.reset({ name: '', price: 0, description: '', features: '' });
+      form.reset({ name: '', price: '0', description: '', features: '', image: undefined });
       setImagePreview(null);
       
       setActiveSection('bikes');
@@ -101,7 +110,7 @@ export default function AdminPage() {
                   <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="price" control={form.control} render={({ field }) => (
-                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" step="0.01" placeholder="e.g., 180000" {...field} onChange={e => field.onChange(e.target.value)} /></FormControl><FormMessage /></FormItem>
+                  <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" step="0.01" placeholder="e.g., 180000" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
                 <FormField name="description" control={form.control} render={({ field }) => (
                   <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>
@@ -109,7 +118,7 @@ export default function AdminPage() {
                 <FormField name="features" control={form.control} render={({ field }) => (
                   <FormItem><FormLabel>Features (comma-separated)</FormLabel><FormControl><Input placeholder="e.g., 155cc Engine, ABS, 35 kmpl" {...field} /></FormControl><FormMessage /></FormItem>
                 )}/>
-                <FormField name="image" control={form.control} render={({ field }) => (
+                <FormField name="image" control={form.control} render={({ field: { onChange, ...fieldProps } }) => (
                   <FormItem>
                     <FormLabel>Upload Image</FormLabel>
                     <FormControl>
@@ -118,7 +127,7 @@ export default function AdminPage() {
                           <CloudUpload className="mb-2 h-10 w-10 text-primary" />
                           <span className="text-muted-foreground">Click to upload bike image</span>
                         </label>
-                        <Input id="bikeImage" type="file" accept="image/*" className="hidden" onChange={handleImageChange} />
+                        <Input id="bikeImage" type="file" accept="image/*" className="hidden" {...fieldProps} onChange={handleImageChange} />
                       </div>
                     </FormControl>
                     <FormMessage />

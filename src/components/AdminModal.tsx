@@ -12,7 +12,7 @@ import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { CloudUpload, Loader2 } from 'lucide-react';
 import { db, storage } from '@/lib/firebase';
-import { addDoc, collection } from 'firebase/firestore';
+import { addDoc, collection, serverTimestamp } from 'firebase/firestore';
 import { ref, uploadBytes, getDownloadURL } from 'firebase/storage';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import Link from 'next/link';
@@ -63,9 +63,10 @@ export default function AdminPage() {
         image: imageUrl,
         imageHint: "new motorcycle",
         features: values.features.split(',').map(f => f.trim()),
+        createdAt: serverTimestamp(),
       });
       
-      toast({ title: 'Success', description: 'Bike added successfully.' });
+      toast({ title: 'Success', description: 'Bike added successfully and will appear instantly!' });
       form.reset({ name: '', price: 0, description: '', features: '' });
       setImagePreview(null);
     } catch (error) {

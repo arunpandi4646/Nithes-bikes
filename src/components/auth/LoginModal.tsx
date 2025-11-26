@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
+import { useRouter } from 'next/navigation';
 import {
   Dialog,
   DialogContent,
@@ -26,6 +27,7 @@ import { useToast } from '@/hooks/use-toast';
 import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2 } from 'lucide-react';
+import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -51,6 +53,7 @@ const GoogleIcon = () => (
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const router = useRouter();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -61,11 +64,23 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     },
   });
 
+  const handleAdminLogin = async (email: string) => {
+    try {
+      const { isAdmin } = await verifyAdmin({ email });
+      if (isAdmin) {
+        router.push('/admin');
+      }
+    } catch (error) {
+      console.error("Could not verify admin status after login.", error);
+    }
+  }
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
       await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
+      await handleAdminLogin(values.email);
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -79,8 +94,11 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
+      if (result.user.email) {
+        await handleAdminLogin(result.user.email);
+      }
       onClose();
     } catch (error: any) {
       console.error(error);

@@ -17,6 +17,7 @@ export default function Header() {
     setLoginModalOpen,
     user,
     authLoading,
+    isAdmin,
   } = useAppContext();
   const [isMobileMenuOpen, setMobileMenuOpen] = useState(false);
 
@@ -77,9 +78,11 @@ export default function Header() {
                 </a>
               </li>
             ))}
-             <li>
-                <Link href="/admin" className={cn('relative cursor-pointer text-base font-medium text-white transition-colors hover:text-primary')}>Admin</Link>
-            </li>
+             {isAdmin && (
+              <li>
+                  <Link href="/admin" className={cn('relative cursor-pointer text-base font-medium text-white transition-colors hover:text-primary')}>Admin</Link>
+              </li>
+            )}
             <div className="mt-4 flex flex-col gap-2 border-t border-gray-700 pt-4 md:hidden">
               {authLoading ? null : user ? (
                 <>

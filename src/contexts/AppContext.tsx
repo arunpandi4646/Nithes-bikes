@@ -1,10 +1,11 @@
 'use client';
 
 import type { ReactNode } from 'react';
-import { createContext, useContext, useState, useEffect, useCallback } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
 import { auth } from '@/lib/firebase';
 import type { Section } from '@/lib/types';
+import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
 
 interface AppContextType {
   activeSection: Section;
@@ -13,6 +14,8 @@ interface AppContextType {
   setLoginModalOpen: (isOpen: boolean) => void;
   user: User | null;
   authLoading: boolean;
+  isAdmin: boolean;
+  checkingAdmin: boolean;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
@@ -22,11 +25,29 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isLoginModalOpen, setLoginModalOpen] = useState(false);
   const [user, setUser] = useState<User | null>(null);
   const [authLoading, setAuthLoading] = useState(true);
+  const [isAdmin, setIsAdmin] = useState(false);
+  const [checkingAdmin, setCheckingAdmin] = useState(true);
 
   useEffect(() => {
-    const unsubscribe = onAuthStateChanged(auth, (currentUser) => {
+    const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
       setUser(currentUser);
       setAuthLoading(false);
+      
+      if (currentUser?.email) {
+        try {
+          setCheckingAdmin(true);
+          const { isAdmin } = await verifyAdmin({ email: currentUser.email });
+          setIsAdmin(isAdmin);
+        } catch (error) {
+          console.error("Error verifying admin status:", error);
+          setIsAdmin(false);
+        } finally {
+          setCheckingAdmin(false);
+        }
+      } else {
+        setIsAdmin(false);
+        setCheckingAdmin(false);
+      }
     });
     return () => unsubscribe();
   }, []);
@@ -43,6 +64,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
     setLoginModalOpen,
     user,
     authLoading,
+    isAdmin,
+    checkingAdmin,
   };
 
   return <AppContext.Provider value={value}>{children}</AppContext.Provider>;

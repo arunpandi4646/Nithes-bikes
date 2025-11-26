@@ -1,6 +1,6 @@
 'use client';
 
-import { AppProvider, useAppContext } from '@/contexts/AppContext';
+import { useAppContext } from '@/contexts/AppContext';
 import Header from '@/components/layout/Header';
 import Footer from '@/components/layout/Footer';
 import HomeSection from '@/components/sections/HomeSection';
@@ -38,8 +38,6 @@ function PageContent() {
 
 export default function MainPage() {
   return (
-    <AppProvider>
-      <PageContent />
-    </AppProvider>
+    <PageContent />
   );
 }

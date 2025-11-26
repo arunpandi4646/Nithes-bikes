@@ -1,6 +1,7 @@
 import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
 import { getAuth, Auth } from 'firebase/auth';
 import { getFirestore, Firestore } from 'firebase/firestore';
+import { getStorage, FirebaseStorage } from 'firebase/storage';
 
 const firebaseConfig = {
   apiKey: "AIzaSyAYjTRGQouFgSJJ689XwKN14fFfsMfK26M",
@@ -15,6 +16,7 @@ type FirebaseInstances = {
   app: FirebaseApp;
   auth: Auth;
   db: Firestore;
+  storage: FirebaseStorage;
 };
 
 let firebaseInstances: FirebaseInstances | null = null;
@@ -27,10 +29,11 @@ export const initializeFirebase = (): FirebaseInstances => {
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const auth = getAuth(app);
   const db = getFirestore(app);
+  const storage = getStorage(app);
   
-  firebaseInstances = { app, auth, db };
+  firebaseInstances = { app, auth, db, storage };
   return firebaseInstances;
 };
 
 
-export const { app, auth, db } = initializeFirebase();
+export const { app, auth, db, storage } = initializeFirebase();

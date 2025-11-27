@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 export default function InvoicePage() {
   const [loading, setLoading] = useState(false);
@@ -26,10 +27,17 @@ export default function InvoicePage() {
     if (invoiceElement) {
       try {
         const inputs = Array.from(invoiceElement.querySelectorAll('input'));
-        // Temporarily hide borders for PDF generation
+        const originalValues: { input: HTMLInputElement, value: string }[] = [];
+
+        // Replace inputs with spans for better PDF rendering
         inputs.forEach(input => {
-          input.style.border = 'none';
-          input.style.backgroundColor = 'white';
+          originalValues.push({ input, value: input.value });
+          const span = document.createElement('span');
+          span.textContent = input.value;
+          span.className = input.className; // copy classes for styling
+          span.style.width = '100%';
+          span.style.display = 'inline-block';
+          input.parentNode?.replaceChild(span, input);
         });
 
         const canvas = await html2canvas(invoiceElement, {
@@ -39,10 +47,12 @@ export default function InvoicePage() {
           useCORS: true,
         });
 
-        // Restore input borders after canvas is created
-        inputs.forEach(input => {
-          input.style.border = '';
-           input.style.backgroundColor = '';
+        // Restore original input fields
+        originalValues.forEach(({ input, value }) => {
+          const span = invoiceElement.querySelector(`span[class="${input.className}"]`);
+          if (span && span.textContent === value) {
+            span.parentNode?.replaceChild(input, span);
+          }
         });
 
         const imgData = canvas.toDataURL('image/png');
@@ -101,13 +111,22 @@ export default function InvoicePage() {
           <CardContent className="p-2 sm:p-6 md:p-8">
             <div ref={invoiceRef} className="bg-white p-4 sm:p-8 text-black">
               {/* Header */}
-              <div className="text-center mb-8">
-                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
-                 <div className="inline-block border-b-2 border-t-2 border-double border-black my-1 w-32 sm:w-48"></div>
-                <p className="text-xs sm:text-sm">3, Anna Street, Pallapalayam (PO),</p>
-                <p className="text-xs sm:text-sm">Mangalam Road - 641663</p>
-                <p className="text-xs sm:text-sm">Phone: 93609 97425</p>
+              <div className="mb-8 flex items-center justify-between">
+                <Image
+                    src="https://res.cloudinary.com/dry3pzan6/image/upload/v1763628420/jiupro1owybvcqu9mrgo.png"
+                    alt="Nitheesh Garage Logo"
+                    width={80}
+                    height={80}
+                />
+                <div className="text-right">
+                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
+                    <div className="ml-auto inline-block border-b-2 border-t-2 border-double border-black my-1 w-32 sm:w-48"></div>
+                    <p className="text-xs sm:text-sm">3, Anna Street, Pallapalayam (PO),</p>
+                    <p className="text-xs sm:text-sm">Mangalam Road - 641663</p>
+                    <p className="text-xs sm:text-sm">Phone: 93609 97425</p>
+                </div>
               </div>
+
 
               {/* Customer Details */}
               <div className="mb-6 sm:mb-8">

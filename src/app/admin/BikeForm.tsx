@@ -142,36 +142,41 @@ export default function BikeForm({ bike, onSuccess }: BikeFormProps) {
 
   return (
     <Form {...form}>
-      <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
-        <FormField name="name" control={form.control} render={({ field }) => (
-          <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField name="price" control={form.control} render={({ field }) => (
-          <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField name="description" control={form.control} render={({ field }) => (
-          <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField name="features" control={form.control} render={({ field }) => (
-          <FormItem><FormLabel>Features (comma-separated)</FormLabel><FormControl><Input placeholder="e.g., 155cc Engine, ABS, 35 kmpl" {...field} /></FormControl><FormMessage /></FormItem>
-        )} />
-        <FormField name="image" control={form.control} render={({ field: { onChange, value, ...fieldProps } }) => (
-          <FormItem>
-            <FormLabel>Upload Image</FormLabel>
-            <FormControl>
-              <div>
-                <label htmlFor="bikeImage" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-6 text-center hover:bg-accent/50">
-                  <CloudUpload className="mb-2 h-10 w-10 text-primary" />
-                  <span className="text-muted-foreground">{imagePreview ? 'Change image' : 'Click to upload bike image'}</span>
-                </label>
-                <Input id="bikeImage" type="file" accept="image/*" className="hidden" {...fieldProps} onChange={handleImageChange} />
-              </div>
-            </FormControl>
-            <FormMessage />
-          </FormItem>
-        )} />
-        {imagePreview && <Image src={imagePreview} alt="Preview" width={150} height={100} className="mt-2 rounded-md object-cover" />}
-        <div className="flex justify-end gap-2">
+      <form onSubmit={form.handleSubmit(onSubmit)} className="grid grid-cols-1 md:grid-cols-2 md:gap-x-8 gap-y-4">
+        <div className="space-y-4 md:col-span-1">
+            <FormField name="name" control={form.control} render={({ field }) => (
+            <FormItem><FormLabel>Bike Name</FormLabel><FormControl><Input placeholder="e.g., Yamaha R15" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField name="price" control={form.control} render={({ field }) => (
+            <FormItem><FormLabel>Price (₹)</FormLabel><FormControl><Input type="number" placeholder="e.g., 180000" {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+            <FormField name="description" control={form.control} render={({ field }) => (
+            <FormItem><FormLabel>Description</FormLabel><FormControl><Textarea placeholder="A short description of the bike." rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+             <FormField name="features" control={form.control} render={({ field }) => (
+                <FormItem><FormLabel>Features (comma-separated)</FormLabel><FormControl><Textarea placeholder="e.g., 155cc Engine, ABS, 35 kmpl" rows={5} {...field} /></FormControl><FormMessage /></FormItem>
+            )} />
+        </div>
+        <div className="space-y-4 md:col-span-1">
+            <FormField name="image" control={form.control} render={({ field: { onChange, value, ...fieldProps } }) => (
+            <FormItem>
+                <FormLabel>Upload Image</FormLabel>
+                <FormControl>
+                <div>
+                    <label htmlFor="bikeImage" className="flex cursor-pointer flex-col items-center justify-center rounded-lg border-2 border-dashed border-border p-6 text-center hover:bg-accent/50">
+                    <CloudUpload className="mb-2 h-10 w-10 text-primary" />
+                    <span className="text-muted-foreground">{imagePreview ? 'Change image' : 'Click to upload bike image'}</span>
+                    </label>
+                    <Input id="bikeImage" type="file" accept="image/*" className="hidden" {...fieldProps} onChange={handleImageChange} />
+                </div>
+                </FormControl>
+                <FormMessage />
+            </FormItem>
+            )} />
+            {imagePreview && <Image src={imagePreview} alt="Preview" width={200} height={150} className="mt-2 rounded-md object-cover w-full aspect-video" />}
+        </div>
+
+        <div className="flex justify-end gap-2 md:col-span-2 sticky bottom-0 bg-background py-4">
           <Button type="button" variant="ghost" onClick={onSuccess}>Cancel</Button>
           <Button type="submit" disabled={loading}>
             {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}

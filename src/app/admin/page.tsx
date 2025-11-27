@@ -167,11 +167,13 @@ export default function AdminProductsPage() {
               )}
             </main>
           
-          <DialogContent className="sm:max-w-4xl">
+          <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col">
               <DialogHeader>
                   <DialogTitle>{selectedBike ? 'Edit Bike' : 'Add New Bike'}</DialogTitle>
               </DialogHeader>
-              <BikeForm bike={selectedBike} onSuccess={onFormSuccess} />
+              <div className="flex-grow overflow-y-auto -mx-6 px-6">
+                <BikeForm bike={selectedBike} onSuccess={onFormSuccess} />
+              </div>
           </DialogContent>
         </Dialog>
     </div>

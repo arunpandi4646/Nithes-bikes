@@ -558,46 +558,27 @@ const SidebarMenuButton = React.forwardRef<
   ) => {
     const { isMobile, state, setOpenMobile } = useSidebar();
 
-    const handleClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-      if (props.onClick) props.onClick(e);
+    const handleClick = (e: React.MouseEvent<HTMLButtonElement | HTMLAnchorElement>) => {
+      if (props.onClick) props.onClick(e as React.MouseEvent<HTMLButtonElement>);
       if (isMobile) {
         setOpenMobile(false);
       }
     };
-    const Comp = href ? Link : asChild ? Slot : 'button';
-
-    const button = (
-      <Comp
-        ref={ref as any}
-        data-sidebar="menu-button"
-        data-size={size}
-        data-active={isActive}
-        className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-        onClick={handleClick}
-        {...props}
-      >
-          {children}
-      </Comp>
-    );
-
-
+    
     const renderButton = () => {
       if (href) {
         return (
-          <Link href={href} passHref legacyBehavior>
-            <a
-              ref={ref as React.Ref<HTMLAnchorElement>}
-              data-sidebar="menu-button"
-              data-size={size}
-              data-active={isActive}
-              className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
-              onClick={(e) => {
-                  if(isMobile) setOpenMobile(false);
-              }}
-              {...(props as any)}
-            >
-              {children}
-            </a>
+          <Link
+            href={href}
+            ref={ref as React.Ref<HTMLAnchorElement>}
+            data-sidebar="menu-button"
+            data-size={size}
+            data-active={isActive}
+            className={cn(sidebarMenuButtonVariants({ variant, size }), className)}
+            onClick={handleClick}
+            {...(props as any)}
+          >
+            {children}
           </Link>
         );
       }

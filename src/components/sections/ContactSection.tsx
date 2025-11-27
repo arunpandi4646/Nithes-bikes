@@ -154,7 +154,7 @@ ${values.message}`;
                     )}
                   />
                   <Button type="submit" className="w-full" disabled={form.formState.isSubmitting}>
-                    Send Message
+                    Send via WhatsApp
                   </Button>
                 </form>
               </Form>

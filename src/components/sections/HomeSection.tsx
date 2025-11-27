@@ -30,10 +30,10 @@ export default function HomeSection() {
           <div className="absolute inset-0 bg-gradient-to-t from-nav-background via-nav-background/70 to-transparent" />
         </div>
         <div className="container relative z-10 flex flex-col items-center">
-          <h1 className="text-4xl font-extrabold tracking-tight md:text-6xl lg:text-7xl">
+          <h1 className="text-4xl font-extrabold tracking-tight sm:text-5xl md:text-6xl lg:text-7xl">
             Premium Bike Sales & Service
           </h1>
-          <p className="mt-6 max-w-3xl text-lg text-gray-300 md:text-xl">
+          <p className="mt-6 max-w-3xl text-lg md:text-xl">
             Experience the best in two-wheeler solutions with our premium collection and expert services
           </p>
           <div className="mt-10 flex flex-col gap-4 sm:flex-row">

@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import Image from 'next/image';
 
 export default function InvoicePage() {
   const [loading, setLoading] = useState(false);
@@ -112,11 +111,12 @@ export default function InvoicePage() {
             <div ref={invoiceRef} className="bg-white p-4 sm:p-8 text-black">
               {/* Header */}
               <div className="mb-8 flex items-center justify-between">
-                <Image
+                <img
                     src="https://res.cloudinary.com/dry3pzan6/image/upload/v1763628420/jiupro1owybvcqu9mrgo.png"
                     alt="Nitheesh Garage Logo"
                     width={80}
                     height={80}
+                    crossOrigin="anonymous"
                 />
                 <div className="text-right">
                     <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>

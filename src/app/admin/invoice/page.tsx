@@ -74,7 +74,7 @@ export default function InvoicePage() {
             value={value}
             onChange={(e) => setter(isNumeric ? parseFloat(e.target.value) || 0 : e.target.value)}
             placeholder={placeholder}
-            className="w-full bg-transparent outline-none focus:bg-gray-100"
+            className="w-full bg-transparent p-2 text-sm outline-none focus:bg-gray-100/50"
         />
     )
   }
@@ -86,7 +86,7 @@ export default function InvoicePage() {
           <h1 className="text-2xl font-bold tracking-tight md:text-3xl">Invoice Generator</h1>
           <p className="text-muted-foreground">Fill in the details below to generate and download an invoice.</p>
         </div>
-        <Button onClick={handleDownload} disabled={loading}>
+        <Button onClick={handleDownload} disabled={loading} className="w-full sm:w-auto">
           {loading ? (
             <Loader2 className="mr-2 h-4 w-4 animate-spin" />
           ) : (
@@ -98,70 +98,70 @@ export default function InvoicePage() {
 
       <main className="mt-8">
         <Card className="shadow-lg">
-          <CardContent className="p-4 sm:p-6 md:p-8">
-            <div ref={invoiceRef} className="bg-white p-8 text-black">
+          <CardContent className="p-2 sm:p-6 md:p-8">
+            <div ref={invoiceRef} className="bg-white p-4 sm:p-8 text-black">
               {/* Header */}
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
-                 <div className="inline-block border-b-2 border-t-2 border-double border-black my-1 w-48"></div>
-                <p className="text-sm">3, Anna Street, Pallapalayam (PO),</p>
-                <p className="text-sm">Mangalam Road - 641663</p>
-                <p className="text-sm">Phone: 93609 97425</p>
+                <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
+                 <div className="inline-block border-b-2 border-t-2 border-double border-black my-1 w-32 sm:w-48"></div>
+                <p className="text-xs sm:text-sm">3, Anna Street, Pallapalayam (PO),</p>
+                <p className="text-xs sm:text-sm">Mangalam Road - 641663</p>
+                <p className="text-xs sm:text-sm">Phone: 93609 97425</p>
               </div>
 
               {/* Customer Details */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold mb-2">Customer Details</h3>
-                <table className="w-full border-collapse border border-black">
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-base sm:text-lg font-bold mb-2">Customer Details</h3>
+                <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Customer Name:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(customerName, setCustomerName, 'Enter Name')}</td>
+                      <td className="w-2/3">{renderEditableField(customerName, setCustomerName, 'Enter Name')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Address:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(address, setAddress, 'Enter Address')}</td>
+                      <td className="w-2/3">{renderEditableField(address, setAddress, 'Enter Address')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Vehicle Number:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(vehicleNo, setVehicleNo, 'Enter Vehicle No.')}</td>
+                      <td className="w-2/3">{renderEditableField(vehicleNo, setVehicleNo, 'Enter Vehicle No.')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Chassis Number:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(chassisNo, setChassisNo, 'Enter Chassis No.')}</td>
+                      <td className="w-2/3">{renderEditableField(chassisNo, setChassisNo, 'Enter Chassis No.')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Engine Number:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(engineNo, setEngineNo, 'Enter Engine No.')}</td>
+                      <td className="w-2/3">{renderEditableField(engineNo, setEngineNo, 'Enter Engine No.')}</td>
                     </tr>
                     <tr>
                       <td className="w-1/3 border-r border-black p-2 font-medium">Timing:</td>
-                      <td className="w-2/3 p-2">{renderEditableField(timing, setTiming, 'Enter Timing')}</td>
+                      <td className="w-2/3">{renderEditableField(timing, setTiming, 'Enter Timing')}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Payment Details */}
-              <div className="mb-8">
-                <h3 className="text-lg font-bold mb-2">Payment Details</h3>
-                <table className="w-full border-collapse border border-black">
+              <div className="mb-6 sm:mb-8">
+                <h3 className="text-base sm:text-lg font-bold mb-2">Payment Details</h3>
+                <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-xl mr-2">■</span> Total Amount:
+                        <span className="text-lg sm:text-xl mr-2">■</span> Total Amount:
                       </td>
-                      <td className="w-2/3 p-2">{renderEditableField(total, setTotal, '0', 'number', true)}</td>
+                      <td className="w-2/3">{renderEditableField(total, setTotal, '0', 'number', true)}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-xl mr-2">■</span> Advance Paid:
+                        <span className="text-lg sm:text-xl mr-2">■</span> Advance Paid:
                       </td>
-                      <td className="w-2/3 p-2">{renderEditableField(advance, setAdvance, '0', 'number', true)}</td>
+                      <td className="w-2/3">{renderEditableField(advance, setAdvance, '0', 'number', true)}</td>
                     </tr>
                     <tr>
                       <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-xl mr-2">■</span> Balance:
+                        <span className="text-lg sm:text-xl mr-2">■</span> Balance:
                       </td>
                       <td className="w-2/3 p-2 font-bold">₹{balance.toLocaleString('en-IN')}</td>
                     </tr>
@@ -170,18 +170,18 @@ export default function InvoicePage() {
               </div>
               
               {/* Terms & Conditions */}
-              <div className="mb-16">
-                  <h3 className="text-lg font-bold mb-2">Terms & Conditions</h3>
-                  <ul className="list-disc list-inside space-y-2 text-sm">
+              <div className="mb-8 sm:mb-16">
+                  <h3 className="text-base sm:text-lg font-bold mb-2">Terms & Conditions</h3>
+                  <ul className="list-disc list-inside space-y-2 text-xs sm:text-sm">
                       <li>After the vehicle has been delivered in proper running condition and after the customer has checked and accepted the vehicle, Nitheesh Garage will not be responsible for any further complaints regarding the same issue.</li>
                       <li>Customers must change their vehicle name transfer within 10 days from the delivery date. If not, the garage will not be responsible for any loss, or issues arising thereafter.</li>
                   </ul>
               </div>
 
               {/* Signatures */}
-              <table className="w-full border-collapse border border-black text-sm">
+              <table className="w-full border-collapse border border-black text-xs sm:text-sm">
                   <tbody>
-                      <tr className="h-24">
+                      <tr className="h-20 sm:h-24">
                           <td className="w-1/2 border-r border-black p-2 align-bottom">Customer signature:</td>
                           <td className="w-1/2 p-2 align-bottom">Staff signature (NITHEESH GARAGE):</td>
                       </tr>

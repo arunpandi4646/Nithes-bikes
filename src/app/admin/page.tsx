@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { PlusCircle, Loader2, Edit, Trash2 } from 'lucide-react';
+import { PlusCircle, Loader2, Edit, Trash2, Bike as BikeIcon } from 'lucide-react';
 import Image from 'next/image';
 import BikeForm from './BikeForm';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
@@ -119,7 +119,7 @@ export default function AdminProductsPage() {
                 </div>
               ) : bikes.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                  <Bike className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <BikeIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
                   <h3 className="mt-4 text-lg font-semibold">No bikes in inventory.</h3>
                   <p>Add one to get started and see it here.</p>
                 </div>
@@ -167,7 +167,7 @@ export default function AdminProductsPage() {
               )}
             </main>
           
-          <DialogContent className="max-w-md sm:max-w-2xl">
+          <DialogContent className="sm:max-w-4xl">
               <DialogHeader>
                   <DialogTitle>{selectedBike ? 'Edit Bike' : 'Add New Bike'}</DialogTitle>
               </DialogHeader>

@@ -564,13 +564,7 @@ const SidebarMenuButton = React.forwardRef<
         setOpenMobile(false);
       }
     };
-
-    const buttonContent = (
-      <>
-        {children}
-        {state === 'expanded' && <span className="truncate">{props['aria-label']}</span>}
-      </>
-    );
+    const Comp = href ? Link : asChild ? Slot : 'button';
 
     const button = (
       <Comp
@@ -586,7 +580,6 @@ const SidebarMenuButton = React.forwardRef<
       </Comp>
     );
 
-    const Comp = href ? Link : asChild ? Slot : 'button';
 
     const renderButton = () => {
       if (href) {

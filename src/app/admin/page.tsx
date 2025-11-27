@@ -86,17 +86,17 @@ export default function AdminPage() {
 
   return (
     <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
-      <div className="mx-auto max-w-6xl">
+      <div className="mx-auto max-w-7xl">
         <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
-          <Card>
-            <CardHeader className="flex flex-row items-center justify-between">
+          <Card className="border-0 shadow-none sm:border sm:shadow-sm">
+            <CardHeader className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="text-2xl">Manage Inventory</CardTitle>
+                <CardTitle className="text-2xl font-bold">Manage Inventory</CardTitle>
                 <CardDescription>
-                  View, add, edit, or delete bike listings.
+                  View, add, edit, or delete bike listings from your inventory.
                 </CardDescription>
               </div>
-              <Button onClick={handleAddNew}>
+              <Button onClick={handleAddNew} className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add New Bike
               </Button>
@@ -107,35 +107,38 @@ export default function AdminPage() {
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : bikes.length === 0 ? (
-                <div className="py-10 text-center text-muted-foreground">
-                  No bikes in inventory. Add one to get started.
+                <div className="py-16 text-center text-muted-foreground border-2 border-dashed rounded-lg">
+                  <h3 className="text-lg font-semibold">No bikes in inventory.</h3>
+                  <p>Add one to get started and see it here.</p>
                 </div>
               ) : (
-                <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4">
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
                   {bikes.map((bike) => (
-                    <Card key={bike.id} className="overflow-hidden">
-                       <div className="relative h-40 w-full">
-                          <Image src={bike.image} alt={bike.name} layout="fill" objectFit="cover" />
+                    <Card key={bike.id} className="overflow-hidden shadow-md transition-shadow hover:shadow-lg">
+                       <div className="relative h-48 w-full">
+                          <Image src={bike.image} alt={bike.name} layout="fill" objectFit="cover" className="bg-muted" />
                        </div>
-                       <CardContent className="p-4">
-                          <h3 className="font-semibold truncate">{bike.name}</h3>
-                          <p className="text-sm text-primary font-medium">₹{Number(bike.price).toLocaleString()}</p>
+                       <div className="p-4">
+                          <h3 className="font-bold text-lg truncate">{bike.name}</h3>
+                          <p className="text-md text-primary font-semibold">₹{Number(bike.price).toLocaleString()}</p>
                           <div className="mt-4 flex justify-end gap-2">
-                            <Button variant="outline" size="sm" onClick={() => handleEdit(bike)}>
+                            <Button variant="outline" size="icon" onClick={() => handleEdit(bike)}>
                                 <Edit className="h-4 w-4" />
+                                <span className="sr-only">Edit Bike</span>
                             </Button>
 
                             <AlertDialog>
                                 <AlertDialogTrigger asChild>
-                                    <Button variant="destructive" size="sm">
+                                    <Button variant="destructive" size="icon">
                                         <Trash2 className="h-4 w-4" />
+                                        <span className="sr-only">Delete Bike</span>
                                     </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                     <AlertDialogHeader>
-                                    <AlertDialogTitle>Are you sure?</AlertDialogTitle>
+                                    <AlertDialogTitle>Are you absolutely sure?</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                        This action cannot be undone. This will permanently delete the bike from your inventory.
+                                        This action cannot be undone. This will permanently delete the bike listing and remove its data from our servers.
                                     </AlertDialogDescription>
                                     </AlertDialogHeader>
                                     <AlertDialogFooter>
@@ -145,7 +148,7 @@ export default function AdminPage() {
                                 </AlertDialogContent>
                             </AlertDialog>
                           </div>
-                       </CardContent>
+                       </div>
                     </Card>
                   ))}
                 </div>
@@ -153,7 +156,7 @@ export default function AdminPage() {
             </CardContent>
           </Card>
           
-          <DialogContent className="max-w-3xl">
+          <DialogContent className="max-w-md sm:max-w-2xl">
               <DialogHeader>
                   <DialogTitle>{selectedBike ? 'Edit Bike' : 'Add New Bike'}</DialogTitle>
               </DialogHeader>

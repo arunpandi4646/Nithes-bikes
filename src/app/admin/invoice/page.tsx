@@ -109,7 +109,7 @@ export default function InvoicePage() {
     </div>
   );
   
-  const renderPaymentField = (name: keyof Details, label: string) => (
+  const renderPaymentField = (name: keyof Details, label: string, isBalance = false) => (
     <div className="flex items-center border-b border-gray-400 py-1">
       <span className="w-1/3 flex-shrink-0 font-medium text-sm pr-2 flex items-center gap-2">
          <span className='font-bold text-lg'>■</span> {label}:
@@ -118,6 +118,7 @@ export default function InvoicePage() {
         name={name}
         value={details[name]}
         onChange={handleInputChange}
+        readOnly={isBalance}
         className="h-auto flex-grow border-0 bg-transparent p-0 text-sm font-semibold focus-visible:ring-0 focus-visible:ring-offset-0"
       />
     </div>
@@ -150,7 +151,7 @@ export default function InvoicePage() {
                     <WavyUnderline />
                 </div>
                 <p className="text-sm mt-2">3, Anna Street, Pallapalayam (PO), Mangalam Road - 641663</p>
-                <p className="text-sm">Phone: 93609 997425</p>
+                <p className="text-sm">Phone: 93609 97425</p>
               </div>
 
               <div className="mb-8">
@@ -170,7 +171,7 @@ export default function InvoicePage() {
                 <div className="grid gap-y-2 border border-gray-400 p-2">
                     {renderPaymentField('totalAmount', 'Total Amount')}
                     {renderPaymentField('advancePaid', 'Advance Paid')}
-                    {renderPaymentField('balance', 'Balance')}
+                    {renderPaymentField('balance', 'Balance', true)}
                 </div>
               </div>
 

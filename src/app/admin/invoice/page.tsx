@@ -167,20 +167,26 @@ export default function InvoicePage() {
                 <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr className="border-b border-black">
-                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-lg sm:text-xl mr-2">■</span> Total Amount:
+                      <td className="w-1/3 border-r border-black p-2 font-medium">
+                        <div className="flex items-center">
+                          <span className="text-lg sm:text-xl mr-2">■</span> Total Amount:
+                        </div>
                       </td>
                       <td className="w-2/3">{renderEditableField(total, setTotal, '0', 'number', true)}</td>
                     </tr>
                     <tr className="border-b border-black">
-                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-lg sm:text-xl mr-2">■</span> Advance Paid:
+                      <td className="w-1/3 border-r border-black p-2 font-medium">
+                        <div className="flex items-center">
+                          <span className="text-lg sm:text-xl mr-2">■</span> Advance Paid:
+                        </div>
                       </td>
                       <td className="w-2/3">{renderEditableField(advance, setAdvance, '0', 'number', true)}</td>
                     </tr>
                     <tr>
-                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
-                        <span className="text-lg sm:text-xl mr-2">■</span> Balance:
+                      <td className="w-1/3 border-r border-black p-2 font-medium">
+                        <div className="flex items-center">
+                          <span className="text-lg sm:text-xl mr-2">■</span> Balance:
+                        </div>
                       </td>
                       <td className="w-2/3 p-2 font-bold">₹{balance.toLocaleString('en-IN')}</td>
                     </tr>

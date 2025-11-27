@@ -14,6 +14,7 @@ import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, 
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
 import type { Bike } from '@/lib/types';
+import { Skeleton } from '@/components/ui/skeleton';
 
 
 async function deleteBike(db: Firestore, bikeId: string) {
@@ -27,7 +28,7 @@ async function deleteBike(db: Firestore, bikeId: string) {
   });
 }
 
-export default function AdminPage() {
+export default function AdminProductsPage() {
   const [bikes, setBikes] = useState<Bike[]>([]);
   const [loading, setLoading] = useState(true);
   const [isFormOpen, setFormOpen] = useState(false);
@@ -85,30 +86,41 @@ export default function AdminPage() {
   }
 
   return (
-    <div className="min-h-screen bg-background p-4 sm:p-6 md:p-8">
-      <div className="mx-auto max-w-7xl">
+    <div className="space-y-8">
         <Dialog open={isFormOpen} onOpenChange={setFormOpen}>
-          <Card className="border-0 shadow-none sm:border sm:shadow-sm">
-            <CardHeader className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
+            <header className="flex flex-col items-start gap-4 sm:flex-row sm:items-center sm:justify-between">
               <div>
-                <CardTitle className="text-2xl font-bold">Manage Inventory</CardTitle>
-                <CardDescription>
+                <h1 className="text-2xl font-bold tracking-tight md:text-3xl">
+                  Product Inventory
+                </h1>
+                <p className="text-muted-foreground">
                   View, add, edit, or delete bike listings from your inventory.
-                </CardDescription>
+                </p>
               </div>
               <Button onClick={handleAddNew} className="w-full sm:w-auto">
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Add New Bike
               </Button>
-            </CardHeader>
-            <CardContent>
+            </header>
+            <main>
               {loading ? (
-                <div className="flex h-64 items-center justify-center">
-                  <Loader2 className="h-8 w-8 animate-spin text-primary" />
+                <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
+                  {Array.from({length: 4}).map((_, i) => (
+                    <Card key={i}>
+                      <CardContent className="p-4">
+                        <Skeleton className="h-40 w-full rounded-md bg-muted" />
+                        <div className="pt-4 space-y-2">
+                          <Skeleton className="h-6 w-3/4 bg-muted" />
+                          <Skeleton className="h-5 w-1/2 bg-muted" />
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
                 </div>
               ) : bikes.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground border-2 border-dashed rounded-lg">
-                  <h3 className="text-lg font-semibold">No bikes in inventory.</h3>
+                  <Bike className="mx-auto h-12 w-12 text-muted-foreground/50" />
+                  <h3 className="mt-4 text-lg font-semibold">No bikes in inventory.</h3>
                   <p>Add one to get started and see it here.</p>
                 </div>
               ) : (
@@ -153,8 +165,7 @@ export default function AdminPage() {
                   ))}
                 </div>
               )}
-            </CardContent>
-          </Card>
+            </main>
           
           <DialogContent className="max-w-md sm:max-w-2xl">
               <DialogHeader>
@@ -163,7 +174,6 @@ export default function AdminPage() {
               <BikeForm bike={selectedBike} onSuccess={onFormSuccess} />
           </DialogContent>
         </Dialog>
-      </div>
     </div>
   );
 }

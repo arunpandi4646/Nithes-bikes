@@ -8,6 +8,10 @@ export interface Bike {
   image: string;
   imageHint: string;
   features: string[];
+  createdAt?: {
+    seconds: number;
+    nanoseconds: number;
+  } | Date;
 }
 
 export interface Service {

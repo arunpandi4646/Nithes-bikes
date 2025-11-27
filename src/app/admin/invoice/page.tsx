@@ -6,7 +6,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
-import { Input } from '@/components/ui/input';
 
 export default function InvoicePage() {
   const [loading, setLoading] = useState(false);
@@ -23,18 +22,38 @@ export default function InvoicePage() {
 
   const handleDownload = async () => {
     setLoading(true);
-    if (invoiceRef.current) {
+    const invoiceElement = invoiceRef.current;
+    if (invoiceElement) {
       try {
-        const canvas = await html2canvas(invoiceRef.current, { scale: 2 });
+        const inputs = Array.from(invoiceElement.querySelectorAll('input'));
+        // Temporarily hide borders for PDF generation
+        inputs.forEach(input => {
+          input.style.border = 'none';
+          input.style.backgroundColor = 'white';
+        });
+
+        const canvas = await html2canvas(invoiceElement, {
+          scale: 3, // Increase scale for better quality
+          backgroundColor: '#ffffff',
+          logging: false,
+          useCORS: true,
+        });
+
+        // Restore input borders after canvas is created
+        inputs.forEach(input => {
+          input.style.border = '';
+           input.style.backgroundColor = '';
+        });
+
         const imgData = canvas.toDataURL('image/png');
-        const pdf = new jsPDF('p', 'px', 'a4');
+        const pdf = new jsPDF('p', 'pt', 'a4');
         const pdfWidth = pdf.internal.pageSize.getWidth();
         const pdfHeight = pdf.internal.pageSize.getHeight();
         const imgWidth = canvas.width;
         const imgHeight = canvas.height;
         const ratio = Math.min(pdfWidth / imgWidth, pdfHeight / imgHeight);
         const imgX = (pdfWidth - imgWidth * ratio) / 2;
-        const imgY = 30;
+        const imgY = 0;
 
         pdf.addImage(imgData, 'PNG', imgX, imgY, imgWidth * ratio, imgHeight * ratio);
         pdf.save(`invoice-${customerName.replace(/\s/g, '_')}-${new Date().toISOString().slice(0, 10)}.pdf`);
@@ -47,6 +66,18 @@ export default function InvoicePage() {
   };
 
   const balance = total - advance;
+
+  const renderEditableField = (value: string | number, setter: (value: any) => void, placeholder: string, type: string = "text", isNumeric: boolean = false) => {
+    return (
+        <input
+            type={type}
+            value={value}
+            onChange={(e) => setter(isNumeric ? parseFloat(e.target.value) || 0 : e.target.value)}
+            placeholder={placeholder}
+            className="w-full bg-transparent outline-none focus:bg-gray-100"
+        />
+    )
+  }
 
   return (
     <div>
@@ -67,75 +98,96 @@ export default function InvoicePage() {
 
       <main className="mt-8">
         <Card className="shadow-lg">
-          <CardContent ref={invoiceRef} className="p-4 sm:p-6 md:p-8">
-            <div className="text-center">
-              <h2 className="text-xl font-bold uppercase tracking-widest text-primary">NITHEESH GARAGE</h2>
-              <p className="text-sm text-muted-foreground">3, Anna Street, Pallapalayam (PO), Mangalam Road - 641663</p>
-              <p className="text-sm text-muted-foreground">Phone: 93609 97425</p>
-            </div>
-
-            <div className="mt-8 grid grid-cols-2 gap-x-8 gap-y-4 border-y border-dashed py-6">
-              <div>
-                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Customer Details</h3>
-                <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-sm">
-                  <label htmlFor="customerName" className="font-medium">Customer Name:</label>
-                  <Input id="customerName" value={customerName} onChange={(e) => setCustomerName(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
-
-                  <label htmlFor="address" className="font-medium">Address:</label>
-                  <Input id="address" value={address} onChange={(e) => setAddress(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
-                  
-                  <label htmlFor="vehicleNo" className="font-medium">Vehicle Number:</label>
-                  <Input id="vehicleNo" value={vehicleNo} onChange={(e) => setVehicleNo(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
-                </div>
+          <CardContent className="p-4 sm:p-6 md:p-8">
+            <div ref={invoiceRef} className="bg-white p-8 text-black">
+              {/* Header */}
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
+                 <div className="inline-block border-b-2 border-t-2 border-double border-black my-1 w-48"></div>
+                <p className="text-sm">3, Anna Street, Pallapalayam (PO),</p>
+                <p className="text-sm">Mangalam Road - 641663</p>
+                <p className="text-sm">Phone: 93609 97425</p>
               </div>
-              <div className="border-l border-dashed pl-8">
-                <h3 className="invisible mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Vehicle Details</h3>
-                <div className="grid grid-cols-[max-content_1fr] items-center gap-x-4 gap-y-1 text-sm">
-                  <label htmlFor="chassisNo" className="font-medium">Chassis Number:</label>
-                  <Input id="chassisNo" value={chassisNo} onChange={(e) => setChassisNo(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
 
-                  <label htmlFor="engineNo" className="font-medium">Engine Number:</label>
-                  <Input id="engineNo" value={engineNo} onChange={(e) => setEngineNo(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
-                  
-                  <label htmlFor="timing" className="font-medium">Timing:</label>
-                  <Input id="timing" value={timing} onChange={(e) => setTiming(e.target.value)} className="h-8 border-b border-dashed bg-transparent" />
-                </div>
+              {/* Customer Details */}
+              <div className="mb-8">
+                <h3 className="text-lg font-bold mb-2">Customer Details</h3>
+                <table className="w-full border-collapse border border-black">
+                  <tbody>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Customer Name:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(customerName, setCustomerName, 'Enter Name')}</td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Address:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(address, setAddress, 'Enter Address')}</td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Vehicle Number:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(vehicleNo, setVehicleNo, 'Enter Vehicle No.')}</td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Chassis Number:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(chassisNo, setChassisNo, 'Enter Chassis No.')}</td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Engine Number:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(engineNo, setEngineNo, 'Enter Engine No.')}</td>
+                    </tr>
+                    <tr>
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Timing:</td>
+                      <td className="w-2/3 p-2">{renderEditableField(timing, setTiming, 'Enter Timing')}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
 
-            <div className="mt-6 flex justify-end">
-              <div className="w-full max-w-sm space-y-2 text-sm">
-                <h3 className="mb-2 text-sm font-semibold uppercase tracking-wider text-muted-foreground">Payment Details</h3>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="total" className="font-medium">■ Total Amount:</label>
-                  <Input id="total" type="number" value={total} onChange={(e) => setTotal(parseFloat(e.target.value))} className="h-8 w-32 border-b border-dashed bg-transparent text-right font-semibold" />
-                </div>
-                <div className="flex items-center justify-between">
-                  <label htmlFor="advance" className="font-medium">■ Advance Paid:</label>
-                  <Input id="advance" type="number" value={advance} onChange={(e) => setAdvance(parseFloat(e.target.value))} className="h-8 w-32 border-b border-dashed bg-transparent text-right" />
-                </div>
-                <div className="flex items-center justify-between border-t border-dashed pt-2 font-bold">
-                  <span>■ Balance:</span>
-                  <span>₹{balance.toLocaleString('en-IN')}</span>
-                </div>
+              {/* Payment Details */}
+              <div className="mb-8">
+                <h3 className="text-lg font-bold mb-2">Payment Details</h3>
+                <table className="w-full border-collapse border border-black">
+                  <tbody>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
+                        <span className="text-xl mr-2">■</span> Total Amount:
+                      </td>
+                      <td className="w-2/3 p-2">{renderEditableField(total, setTotal, '0', 'number', true)}</td>
+                    </tr>
+                    <tr className="border-b border-black">
+                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
+                        <span className="text-xl mr-2">■</span> Advance Paid:
+                      </td>
+                      <td className="w-2/3 p-2">{renderEditableField(advance, setAdvance, '0', 'number', true)}</td>
+                    </tr>
+                    <tr>
+                      <td className="w-1/3 border-r border-black p-2 font-medium flex items-center">
+                        <span className="text-xl mr-2">■</span> Balance:
+                      </td>
+                      <td className="w-2/3 p-2 font-bold">₹{balance.toLocaleString('en-IN')}</td>
+                    </tr>
+                  </tbody>
+                </table>
               </div>
-            </div>
+              
+              {/* Terms & Conditions */}
+              <div className="mb-16">
+                  <h3 className="text-lg font-bold mb-2">Terms & Conditions</h3>
+                  <ul className="list-disc list-inside space-y-2 text-sm">
+                      <li>After the vehicle has been delivered in proper running condition and after the customer has checked and accepted the vehicle, Nitheesh Garage will not be responsible for any further complaints regarding the same issue.</li>
+                      <li>Customers must change their vehicle name transfer within 10 days from the delivery date. If not, the garage will not be responsible for any loss, or issues arising thereafter.</li>
+                  </ul>
+              </div>
 
-            <div className="mt-12 text-xs text-muted-foreground">
-              <h4 className="mb-2 font-semibold uppercase tracking-wider text-foreground">Terms & Conditions</h4>
-              <ol className="list-inside list-decimal space-y-1">
-                <li>After the vehicle has been delivered in proper running condition and after the customer has checked and accepted the vehicle, Nitheesh Garage will not be responsible for any further complaints regarding the same issue.</li>
-                <li>Customers must change their vehicle name transfer within 10 days from the delivery date. If not, the garage will not be responsible for any loss, or issues arising thereafter.</li>
-              </ol>
-            </div>
+              {/* Signatures */}
+              <table className="w-full border-collapse border border-black text-sm">
+                  <tbody>
+                      <tr className="h-24">
+                          <td className="w-1/2 border-r border-black p-2 align-bottom">Customer signature:</td>
+                          <td className="w-1/2 p-2 align-bottom">Staff signature (NITHEESH GARAGE):</td>
+                      </tr>
+                  </tbody>
+              </table>
 
-            <div className="mt-24 grid grid-cols-2 gap-8 pt-8">
-              <div className="border-t pt-2 text-center text-sm">
-                Customer signature:
-              </div>
-              <div className="border-t pt-2 text-center text-sm">
-                Staff signature (NITHEESH GARAGE):
-              </div>
             </div>
           </CardContent>
         </Card>

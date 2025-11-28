@@ -11,28 +11,47 @@ const socialLinks = [
 ];
 
 const WhatsAppIcon = () => (
-    <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="lucide lucide-message-circle">
-        <path d="M12.04 2c-5.46 0-9.91 4.45-9.91 9.91 0 2.35.83 4.5 2.22 6.23L2.23 22l4.1-2.12c1.6.86 3.42 1.37 5.71 1.37 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zM9.06 8.1c.21-.24.45-.37.7-.37s.48.14.65.41c.17.27.67 1.63.73 1.76.06.13.1.27.01.44-.09.17-.18.27-.35.44-.17.17-.35.37-.5.5-.15.13-.3.29-.14.56.16.27.71 1.18 1.5 1.95.96.94 1.8 1.22 2.05 1.29.25.07.4-.01.54-.12.13-.13.56-.65.73-.88.17-.23.34-.18.57-.1.23.08 1.45.68 1.7 1.8.25 1.12.13 2.11-.09 2.36-.22.25-1.29 1.2-1.8 1.2s-1.48-.22-2.82-1.55c-1.34-1.33-2.22-2.95-2.29-3.08-.07-.13-.62-1.29-.62-2.42 0-1.13.5-1.72.68-1.95z"/>
+    <svg
+      role="img"
+      viewBox="0 0 24 24"
+      xmlns="http://www.w3.org/2000/svg"
+      className="h-6 w-6"
+      fill="currentColor"
+    >
+      <title>WhatsApp</title>
+      <path d="M12.04 2C6.58 2 2.13 6.45 2.13 11.91c0 1.79.46 3.45 1.28 4.94L2 22l5.13-1.35c1.43.79 3.03 1.25 4.91 1.25 5.46 0 9.91-4.45 9.91-9.91S17.5 2 12.04 2zm-3 14.88c-.22 0-.43-.07-.62-.21-.49-.36-1.03-1.1-1.48-1.88-.45-.78-.9-1.63-1.02-1.92s-.15-.47.02-.73c.17-.26.39-.42.59-.55s.38-.19.52-.06c.14.13.43.51.52.61s.15.25.21.41.06.3-.01.48-.15.34-.21.41-.12.16-.06.29c.06.13.29.56.57.84s.6.53.86.72c.26.19.46.3.61.37s.29.07.41-.04.48-.56.59-.75.22-.19.38-.1c.16.09.99.47 1.16.56.17.09.29.13.33.21s.04.45-.09.84c-.13.39-.81 1.04-1.16 1.28s-.63.26-1.1.26z"/>
     </svg>
 );
 
 
+const SocialIcon = ({ type, href }: { type: string | React.ElementType, href: string }) => {
+    let Icon;
+    if (typeof type === 'string' && type === 'whatsapp') {
+        Icon = WhatsAppIcon;
+    } else if (typeof type !== 'string') {
+        Icon = type;
+    } else {
+        return null;
+    }
+
+    return (
+        <Link href={href} target="_blank" rel="noopener noreferrer" className="flex h-12 w-12 items-center justify-center rounded-full bg-primary/10 text-primary transition-colors duration-300 hover:bg-primary hover:text-white">
+            <Icon className="h-6 w-6" />
+        </Link>
+    );
+}
+
 export default function SocialBar() {
   return (
-    <div className="bg-nav-background py-12 text-white">
-      <div className="container text-center">
-        <h2 className="text-3xl font-bold">Follow Us on Social Media</h2>
-        <div className="mt-8 flex justify-center gap-4">
-          {socialLinks.map((link) => (
-            <Link key={link.name} href={link.href} target="_blank" rel="noopener noreferrer"
-              className="flex h-14 w-14 items-center justify-center rounded-full bg-white/10 text-white transition-all duration-300 hover:-translate-y-1 hover:bg-primary"
-            >
-              {link.icon === 'whatsapp' ? <WhatsAppIcon /> : <link.icon className="h-6 w-6" />}
-              <span className="sr-only">{link.name}</span>
-            </Link>
-          ))}
+    <section className="bg-background py-12">
+      <div className="container flex flex-col items-center justify-center">
+        <h3 className="mb-6 text-center text-2xl font-bold">Follow Us On Social Media</h3>
+        <div className="flex flex-wrap justify-center gap-4">
+            {socialLinks.map((link) => (
+                <SocialIcon key={link.name} type={link.icon} href={link.href} />
+            ))}
         </div>
       </div>
-    </div>
+    </section>
   );
 }

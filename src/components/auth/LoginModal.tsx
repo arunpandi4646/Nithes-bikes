@@ -26,7 +26,6 @@ import { useToast } from '@/hooks/use-toast';
 import { useAuth } from '@/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
-import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
 import { useAppContext } from '@/contexts/AppContext';
 
 const formSchema = z.object({
@@ -67,23 +66,13 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     },
   });
 
-  const handleAdminRedirect = () => {
-    if (isAdmin) {
-        router.push('/admin');
-    }
-  }
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
       
-      const { isAdmin } = await verifyAdmin({ uid: userCredential.user.uid });
-      if (isAdmin) {
-        router.push('/admin');
-      }
-
+      // AppContext will handle isAdmin state and redirection
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -97,14 +86,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
 
-      const { isAdmin } = await verifyAdmin({ uid: result.user.uid });
-      if (isAdmin) {
-        router.push('/admin');
-      }
-
+      // AppContext will handle isAdmin state and redirection
       onClose();
     } catch (error: any) {
       console.error(error);

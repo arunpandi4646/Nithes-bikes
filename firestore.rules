@@ -10,7 +10,7 @@ service cloud.firestore {
     function isAdmin() {
       // For now, we will identify admins by a specific email.
       // In a real application, you should use custom claims.
-      return isAuth() && request.auth.token.email == "admin@gmail.com";
+      return isAuth() && request.auth.token.email == "nitheeshgarage@gmail.com";
     }
 
     // Bikes collection rules

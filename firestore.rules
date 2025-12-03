@@ -1,25 +1,139 @@
+/**
+ * This ruleset enforces a security model for the Nitheesh Garage application.
+ *
+ * Core Philosophy:
+ * The security model is designed to be multi-tiered. Publicly viewable data like
+ * bikes and services are readable by anyone, but can only be managed by administrators.
+ * User-specific data, such as user profiles, is strictly private and can only be
+ * accessed by the document owner. Finally, some collections, like contact inquiries,
+ * allow public write access (so anyone can submit a form) but restrict read
+ * and delete access to administrators to protect user privacy.
+ *
+ * Data Structure:
+ * The data is organized into several top-level collections:
+ * - /bikes: A public catalog of bikes.
+ * - /services: A public catalog of services.
+ * - /contact_inquiries: A collection for user-submitted contact forms.
+ * - /user_profiles: Stores private user data, with the document ID matching the user's UID.
+ * - /roles_admin: A lookup collection where the existence of a document indicates a user has admin privileges.
+ *
+ * Key Security Decisions:
+ * - Admin status is not determined by a field on a user's profile, but by the
+ *   existence of a document in the `/roles_admin/{userId}` collection. This is
+ *   a highly secure and performant pattern that avoids extra reads (`get` calls)
+ *   in other rules.
+ * - Listing all users is explicitly disallowed to protect user privacy.
+ * - Contact inquiries are "write-only" for the public. Anyone can create one, but
+ *   no one can see the submitted inquiries except for administrators.
+ * - Writes to public collections (`bikes`, `services`) are restricted to admins.
+ *
+ * Denormalization for Authorization:
+ * The `/roles_admin` collection is a prime example of denormalization for authorization.
+ * By creating a document like `/roles_admin/some_admin_uid`, we can use a simple
+ * and fast `exists()` check to grant administrative privileges across the entire
+ * ruleset, rather than performing a slow and costly `get()` on a user profile document.
+ *
+ * Structural Segregation:
+ * The `/contact_inquiries` collection is separated from user profiles. This allows
+ * any visitor (even unauthenticated ones) to submit an inquiry without granting them
+ * any read access to other inquiries, which might contain private information. This
+ * is more secure than a mixed-access collection.
+ */
 rules_version = '2';
-
 service cloud.firestore {
   match /databases/{database}/documents {
-    // Helper functions
-    function isAuth() {
+
+    // Helper functions for reusable logic
+    
+    /**
+     * Checks if the user is authenticated.
+     */
+    function isSignedIn() {
       return request.auth != null;
     }
-
+    
+    /**
+     * Checks if the requesting user's UID matches the provided userId.
+     * This is the foundation of the user-ownership model.
+     */
+    function isOwner(userId) {
+      return isSignedIn() && request.auth.uid == userId;
+    }
+    
+    /**
+     * Checks if the user is an administrator.
+     * Admin status is determined by the existence of a document in the 'roles_admin' collection
+     * with the user's UID as the document ID. This is a fast and secure lookup.
+     */
     function isAdmin() {
-      // For now, we will identify admins by a specific UID.
-      // In a real application, you should use custom claims.
-      return isAuth() && request.auth.uid == "zMW1z5cRS1QbreKX16h1jNzoEm02";
+      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
     }
 
-    // Bikes collection rules
+    /**
+     * @description Publicly readable catalog of bikes, writable only by administrators.
+     * @path /bikes/{bikeId}
+     * @allow (get) Any user, signed in or not, can read a bike document.
+     * @deny (create) A non-administrator cannot create a new bike listing.
+     * @principle Public read access for catalog data, with centralized admin control for writes.
+     */
     match /bikes/{bikeId} {
-      // Anyone can view the bike listings
-      allow read: if true;
-      
-      // Only admins can create, update, or delete bike listings
-      allow write: if isAdmin();
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Publicly readable list of services, writable only by administrators.
+     * @path /services/{serviceId}
+     * @allow (list) Any user, signed in or not, can list all available services.
+     * @deny (update) A regular authenticated user cannot update a service document.
+     * @principle Public read access for catalog data, with centralized admin control for writes.
+     */
+    match /services/{serviceId} {
+      allow get, list: if true;
+      allow create: if isAdmin();
+      allow update, delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Allows anyone to submit a contact inquiry but restricts reads to admins.
+     * @path /contact_inquiries/{inquiryId}
+     * @allow (create) Any user, including unauthenticated visitors, can submit a contact form.
+     * @deny (get) A regular user cannot read an inquiry submitted by another user.
+     * @deny (list) Listing all inquiries is forbidden for non-admins to protect privacy.
+     * @principle Segregates public-write from private-read access to protect sensitive user-submitted data.
+     */
+    match /contact_inquiries/{inquiryId} {
+      allow get, list: if isAdmin();
+      allow create: if true;
+      allow update: if false; // Inquiries are immutable once created.
+      allow delete: if isAdmin() && resource != null;
+    }
+
+    /**
+     * @description Secures user profile data, allowing access only to the owner.
+     * @path /user_profiles/{userId}
+     * @allow (get) A user can read their own profile. auth.uid must match userId.
+     * @deny (get) A user cannot read another user's profile.
+     * @deny (list) Listing all user profiles is explicitly forbidden to prevent user enumeration.
+     * @principle Enforces a strict document ownership model for all operations.
+     */
+    match /user_profiles/{userId} {
+      allow get, update, delete: if isOwner(userId) && resource != null;
+      allow list: if false;
+      allow create: if isOwner(userId) && request.resource.data.id == userId;
+    }
+
+    /**
+     * @description Manages admin roles. Only existing admins can view or modify the list of admins.
+     * @path /roles_admin/{userId}
+     * @allow (create) An existing admin can grant admin privileges to another user.
+     * @deny (create) A non-admin user cannot make themselves an admin.
+     * @principle Prevents privilege escalation by restricting role management to current administrators.
+     */
+    match /roles_admin/{userId} {
+      allow get, list: if isAdmin();
+      allow create, update, delete: if isAdmin();
     }
   }
 }

@@ -1,59 +1,244 @@
 {
   "entities": {
     "Bike": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
       "title": "Bike",
-      "description": "Represents a motorcycle available for sale.",
       "type": "object",
+      "description": "Represents a bike available for sale or service at Nitheesh Garage.",
       "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the bike."
+        },
         "name": {
           "type": "string",
-          "description": "The name of the bike model."
+          "description": "Name of the bike model."
         },
         "price": {
-          "type": "string",
-          "description": "The price of the bike."
+          "type": "number",
+          "description": "Price of the bike in INR."
         },
         "description": {
           "type": "string",
-          "description": "A brief description of the bike."
+          "description": "Detailed description of the bike."
         },
         "image": {
           "type": "string",
-          "format": "uri",
           "description": "URL of the bike's image."
-        },
-        "imageHint": {
-          "type": "string",
-          "description": "A hint for AI image search."
         },
         "features": {
           "type": "array",
+          "description": "Array of key features of the bike.",
           "items": {
             "type": "string"
-          },
-          "description": "A list of key features of the bike."
+          }
         }
       },
       "required": [
+        "id",
         "name",
         "price",
         "description",
-        "image"
+        "image",
+        "features"
+      ]
+    },
+    "Service": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "Service",
+      "type": "object",
+      "description": "Represents a service offered by Nitheesh Garage.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the service."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the service."
+        },
+        "description": {
+          "type": "string",
+          "description": "Detailed description of the service."
+        },
+        "icon": {
+          "type": "string",
+          "description": "Font Awesome icon class for the service."
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "description",
+        "icon"
+      ]
+    },
+    "ContactInquiry": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "ContactInquiry",
+      "type": "object",
+      "description": "Represents a contact inquiry submitted by a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the contact inquiry."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the person submitting the inquiry."
+        },
+        "email": {
+          "type": "string",
+          "description": "Email address of the person submitting the inquiry.",
+          "format": "email"
+        },
+        "phone": {
+          "type": "string",
+          "description": "Phone number of the person submitting the inquiry."
+        },
+        "message": {
+          "type": "string",
+          "description": "The message content of the inquiry."
+        },
+        "timestamp": {
+          "type": "string",
+          "description": "Timestamp of when the inquiry was submitted.",
+          "format": "date-time"
+        }
+      },
+      "required": [
+        "id",
+        "name",
+        "email",
+        "phone",
+        "message",
+        "timestamp"
+      ]
+    },
+    "UserProfile": {
+      "$schema": "http://json-schema.org/draft-07/schema#",
+      "title": "UserProfile",
+      "type": "object",
+      "description": "Represents the profile information of a user.",
+      "properties": {
+        "id": {
+          "type": "string",
+          "description": "Unique identifier for the user profile.  This is generally the Firebase UID."
+        },
+        "displayName": {
+          "type": "string",
+          "description": "The display name of the user."
+        },
+        "email": {
+          "type": "string",
+          "description": "The email address of the user.",
+          "format": "email"
+        },
+        "photoURL": {
+          "type": "string",
+          "description": "URL of the user's profile picture."
+        },
+        "isAdmin": {
+          "type": "boolean",
+          "description": "Indicates whether the user has admin privileges."
+        }
+      },
+      "required": [
+        "id",
+        "displayName",
+        "email"
       ]
     }
   },
   "auth": {
     "providers": [
       "password",
-      "google.com"
+      "anonymous"
     ]
   },
   "firestore": {
-    "/bikes/{bikeId}": {
-      "schema": {
-        "$ref": "#/entities/Bike"
+    "structure": [
+      {
+        "path": "/bikes/{bikeId}",
+        "definition": {
+          "entityName": "Bike",
+          "schema": {
+            "$ref": "#/backend/entities/Bike"
+          },
+          "description": "Stores information about bikes available at Nitheesh Garage.",
+          "params": [
+            {
+              "name": "bikeId",
+              "description": "Unique identifier for the bike."
+            }
+          ]
+        }
       },
-      "description": "Stores information about individual bikes for sale."
-    }
+      {
+        "path": "/services/{serviceId}",
+        "definition": {
+          "entityName": "Service",
+          "schema": {
+            "$ref": "#/backend/entities/Service"
+          },
+          "description": "Stores information about services offered by Nitheesh Garage.",
+          "params": [
+            {
+              "name": "serviceId",
+              "description": "Unique identifier for the service."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/contact_inquiries/{inquiryId}",
+        "definition": {
+          "entityName": "ContactInquiry",
+          "schema": {
+            "$ref": "#/backend/entities/ContactInquiry"
+          },
+          "description": "Stores contact inquiries submitted by users.",
+          "params": [
+            {
+              "name": "inquiryId",
+              "description": "Unique identifier for the contact inquiry."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/user_profiles/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores user profile information. Document ID is the Firebase uid.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user (Firebase UID)."
+            }
+          ]
+        }
+      },
+      {
+        "path": "/roles_admin/{userId}",
+        "definition": {
+          "entityName": "UserProfile",
+          "schema": {
+            "$ref": "#/backend/entities/UserProfile"
+          },
+          "description": "Stores the uid of admins. Existence of a document indicates admin status.",
+          "params": [
+            {
+              "name": "userId",
+              "description": "Unique identifier for the user (Firebase UID)."
+            }
+          ]
+        }
+      }
+    ],
+    "reasoning": "The Firestore data structure is designed to support the Nitheesh Garage application, focusing on bikes, services, contact inquiries, and user profiles. To ensure clarity, security, and scalability, the data is organized into separate collections with clear ownership and access control mechanisms. This design avoids hierarchical authorization dependencies, promoting atomic operations and simplifying security rules. \n\n1.  **bikes Collection:** Stores information about bikes available for sale or service. This is a top-level collection to allow easy listing and querying. There is no ownership of Bike objects.\n2.  **services Collection:** Contains details about the services offered by Nitheesh Garage. Similar to bikes, this is a top-level collection for easy management and display.\n3.  **contact_inquiries Collection:** Stores contact inquiries submitted by users. This data is accessible for management purposes and requires protection against unauthorized access.\n4.  **user_profiles Collection:** Stores user profile information. Each user has their own document in this collection, enabling secure access and management of personal data. The document ID is the Firebase `uid`.\n5. **roles_admin Collection:** Stores the `uid` of users who are admins. The existence of the document is used for authorization.\n\n**Authorization Independence (Denormalization):** This structure prioritizes authorization independence by avoiding hierarchical dependencies. For example, while an 'isAdmin' flag exists on the `UserProfile`, that is purely for convenience and UI purposes. Admin status is determined purely by existence in the `roles_admin` collection. This eliminates the need for `get()` calls in security rules, allowing atomic operations and easier debugging.\n\n**QAPs (Rules are Not Filters):** The structure supports secure list operations by segregating data with different access needs into separate collections (Structural Segregation). The use of dedicated collections for bikes, services, contact inquiries, and user profiles enables straightforward security rules that do not require filtering based on document content (QAPs). Admins are authorized via the existence of their `uid` in `/roles_admin/{uid}`.\n\n**Ownership & Access Modeling:**\n*   `/bikes` and `/services` are globally readable, but only admins can create, update, or delete documents.\n*   `/user_profiles/{uid}` is owned by the user with the matching `uid`. Users can only read/write their own profile data.\n*   `/contact_inquiries` can only be created by anyone. Only admins can read or delete them."
   }
 }

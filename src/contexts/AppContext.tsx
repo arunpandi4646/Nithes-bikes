@@ -33,10 +33,10 @@ export function AppProvider({ children }: { children: ReactNode }) {
       setUser(currentUser);
       setAuthLoading(false);
       
-      if (currentUser?.email) {
+      if (currentUser) {
         try {
           setCheckingAdmin(true);
-          const { isAdmin } = await verifyAdmin({ email: currentUser.email });
+          const { isAdmin } = await verifyAdmin({ uid: currentUser.uid });
           setIsAdmin(isAdmin);
         } catch (error) {
           console.error("Error verifying admin status:", error);

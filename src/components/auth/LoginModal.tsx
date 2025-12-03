@@ -10,7 +10,6 @@ import {
   DialogContent,
   DialogHeader,
   DialogTitle,
-  DialogDescription,
 } from '@/components/ui/dialog';
 import {
   Form,
@@ -28,6 +27,7 @@ import { auth } from '@/lib/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
+import { useAppContext } from '@/contexts/AppContext';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -55,6 +55,7 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
+  const { isAdmin } = useAppContext();
 
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,23 +66,23 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     },
   });
 
-  const handleAdminLogin = async (email: string) => {
-    try {
-      const { isAdmin } = await verifyAdmin({ email });
-      if (isAdmin) {
+  const handleAdminRedirect = () => {
+    if (isAdmin) {
         router.push('/admin');
-      }
-    } catch (error) {
-      console.error("Could not verify admin status after login.", error);
     }
   }
 
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      await signInWithEmailAndPassword(auth, values.email, values.password);
+      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
-      await handleAdminLogin(values.email);
+      
+      const { isAdmin } = await verifyAdmin({ uid: userCredential.user.uid });
+      if (isAdmin) {
+        router.push('/admin');
+      }
+
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -97,9 +98,12 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       const provider = new GoogleAuthProvider();
       const result = await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
-      if (result.user.email) {
-        await handleAdminLogin(result.user.email);
+
+      const { isAdmin } = await verifyAdmin({ uid: result.user.uid });
+      if (isAdmin) {
+        router.push('/admin');
       }
+
       onClose();
     } catch (error: any) {
       console.error(error);

@@ -1,8 +1,8 @@
 'use server';
 /**
- * @fileOverview A flow to verify if a user is an admin based on their email.
+ * @fileOverview A flow to verify if a user is an admin based on their UID.
  *
- * - verifyAdmin - A function that checks if the user's email matches the admin email.
+ * - verifyAdmin - A function that checks if the user's UID matches the admin UID.
  * - VerifyAdminInput - The input type for the verifyAdmin function.
  * - VerifyAdminOutput - The return type for the verifyAdmin function.
  */
@@ -11,7 +11,7 @@ import { ai } from '@/ai/genkit';
 import { z } from 'genkit';
 
 const VerifyAdminInputSchema = z.object({
-  email: z.string().email().describe('The email address of the user to verify.'),
+  uid: z.string().describe('The UID of the user to verify.'),
 });
 export type VerifyAdminInput = z.infer<typeof VerifyAdminInputSchema>;
 
@@ -32,8 +32,8 @@ const verifyAdminFlow = ai.defineFlow(
   },
   async (input) => {
     // In a real application, you might check a database or use custom claims.
-    // For now, we'll just check against a hardcoded admin email.
-    const isAdmin = input.email === 'nitheeshgarage@gmail.com';
+    // For now, we'll just check against a hardcoded admin UID.
+    const isAdmin = input.uid === 'CLpI38HrGGMwE7rfsH5eo19d8re2';
     return { isAdmin };
   }
 );

@@ -3,7 +3,7 @@
 import type { ReactNode } from 'react';
 import { createContext, useContext, useState, useEffect } from 'react';
 import { onAuthStateChanged, type User } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import type { Section } from '@/lib/types';
 import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
 
@@ -27,6 +27,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [authLoading, setAuthLoading] = useState(true);
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
+  const auth = useAuth();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -50,7 +51,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => unsubscribe();
-  }, []);
+  }, [auth]);
 
   const setActiveSection = (section: Section) => {
     setActiveSectionState(section);

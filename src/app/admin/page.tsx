@@ -1,8 +1,8 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useMemo } from 'react';
 import { collection, onSnapshot, query, orderBy, deleteDoc, doc, Firestore } from 'firebase/firestore';
-import { db } from '@/lib/firebase';
+import { useFirestore, useCollection, useMemoFirebase } from '@/firebase';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { useToast } from '@/hooks/use-toast';
@@ -29,36 +29,28 @@ async function deleteBike(db: Firestore, bikeId: string) {
 }
 
 export default function AdminProductsPage() {
-  const [bikes, setBikes] = useState<Bike[]>([]);
-  const [loading, setLoading] = useState(true);
   const [isFormOpen, setFormOpen] = useState(false);
   const [selectedBike, setSelectedBike] = useState<Bike | null>(null);
   const { toast } = useToast();
+  const firestore = useFirestore();
+
+  const bikesQuery = useMemoFirebase(() => {
+    if (!firestore) return null;
+    return query(collection(firestore, 'bikes'), orderBy('createdAt', 'desc'));
+  }, [firestore]);
+
+  const { data: bikes, isLoading: loading, error } = useCollection<Bike>(bikesQuery);
 
   useEffect(() => {
-    const bikesQuery = query(collection(db, 'bikes'), orderBy('createdAt', 'desc'));
-    const unsubscribe = onSnapshot(
-      bikesQuery,
-      (snapshot) => {
-        const bikesData = snapshot.docs.map((doc) => ({
-          id: doc.id,
-          ...doc.data(),
-        })) as Bike[];
-        setBikes(bikesData);
-        setLoading(false);
-      },
-      (error) => {
+      if (error) {
         console.error("Error fetching bikes: ", error);
-        setLoading(false);
         toast({
             variant: "destructive",
             title: "Error",
             description: "Could not fetch bikes. Check console for details."
         })
       }
-    );
-    return () => unsubscribe();
-  }, [toast]);
+  }, [error, toast]);
 
   const handleEdit = (bike: Bike) => {
     setSelectedBike(bike);
@@ -72,7 +64,7 @@ export default function AdminProductsPage() {
 
   const handleDelete = async (bikeId: string) => {
     try {
-      await deleteBike(db, bikeId);
+      await deleteBike(firestore, bikeId);
       toast({ title: 'Success', description: 'Bike deleted successfully.' });
     } catch (error) {
       console.error('Error deleting bike:', error);
@@ -117,7 +109,7 @@ export default function AdminProductsPage() {
                     </Card>
                   ))}
                 </div>
-              ) : bikes.length === 0 ? (
+              ) : !bikes || bikes.length === 0 ? (
                 <div className="py-16 text-center text-muted-foreground border-2 border-dashed rounded-lg">
                   <BikeIcon className="mx-auto h-12 w-12 text-muted-foreground/50" />
                   <h3 className="mt-4 text-lg font-semibold">No bikes in inventory.</h3>
@@ -167,7 +159,7 @@ export default function AdminProductsPage() {
               )}
             </main>
           
-          <DialogContent className="sm:max-w-4xl h-[90vh] flex flex-col">
+          <DialogContent className="sm:max-w-4xl h-full w-full max-w-[90vw] max-h-[90vh] flex flex-col sm:h-auto sm:w-auto">
               <DialogHeader>
                   <DialogTitle>{selectedBike ? 'Edit Bike' : 'Add New Bike'}</DialogTitle>
               </DialogHeader>

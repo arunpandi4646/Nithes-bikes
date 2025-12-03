@@ -1,34 +1,8 @@
-import { initializeApp, getApps, getApp, FirebaseApp } from 'firebase/app';
-import { getAuth, Auth } from 'firebase/auth';
-import { getFirestore, Firestore } from 'firebase/firestore';
-import { getStorage, FirebaseStorage } from 'firebase/storage';
+'use client';
+// This file is deprecated and will be removed.
+// Please use the exports from '@/firebase' instead.
+import { initializeFirebase as initialize } from '@/firebase';
 
-const firebaseConfig = {
-  apiKey: "AIzaSyAYjTRGQouFgSJJ689XwKN14fFfsMfK26M",
-  authDomain: "studio-398059978-802b3.firebaseapp.com",
-  projectId: "studio-398059978-802b3",
-  storageBucket: "studio-398059978-802b3.appspot.com",
-  messagingSenderId: "783407561608",
-  appId: "1:783407561608:web:846006efb8aedb500ad83d"
-};
+const { app, auth, db, storage } = initialize();
 
-type FirebaseInstances = {
-  app: FirebaseApp;
-  auth: Auth;
-  db: Firestore;
-  storage: FirebaseStorage;
-};
-
-// We don't use a memoized instance here to ensure fresh config on every init.
-// This helps prevent issues with stale project configurations.
-export const initializeFirebase = (): FirebaseInstances => {
-  const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
-  const auth = getAuth(app);
-  const db = getFirestore(app);
-  const storage = getStorage(app);
-  
-  return { app, auth, db, storage };
-};
-
-
-export const { app, auth, db, storage } = initializeFirebase();
+export { app, auth, db, storage };

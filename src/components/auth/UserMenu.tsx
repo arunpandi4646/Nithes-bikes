@@ -12,13 +12,14 @@ import { Button } from '@/components/ui/button';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { useAppContext } from '@/contexts/AppContext';
 import { signOut } from 'firebase/auth';
-import { auth } from '@/lib/firebase';
+import { useAuth } from '@/firebase';
 import { useToast } from '@/hooks/use-toast';
 import { LogOut, Settings, User as UserIcon, ChevronDown } from 'lucide-react';
 
 export function UserMenu() {
   const { user, setActiveSection } = useAppContext();
   const { toast } = useToast();
+  const auth = useAuth();
 
   const handleLogout = async () => {
     try {

@@ -11,7 +11,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from '
 import { useToast } from '@/hooks/use-toast';
 import Image from 'next/image';
 import { CloudUpload, Loader2 } from 'lucide-react';
-import { db } from '@/lib/firebase';
+import { useFirestore } from '@/firebase';
 import { addDoc, collection, updateDoc, doc, Firestore } from 'firebase/firestore';
 import { errorEmitter } from '@/firebase/error-emitter';
 import { FirestorePermissionError } from '@/firebase/errors';
@@ -61,6 +61,7 @@ export default function BikeForm({ bike, onSuccess }: BikeFormProps) {
   const [imagePreview, setImagePreview] = useState<string | null>(bike?.image || null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const firestore = useFirestore();
 
   const defaultValues = {
       name: bike?.name || '',
@@ -117,7 +118,6 @@ export default function BikeForm({ bike, onSuccess }: BikeFormProps) {
         price: parseFloat(values.price),
         description: values.description,
         image: imageUrl,
-        imageHint: "new motorcycle",
         features: values.features.split(',').map(f => f.trim()),
       };
 
@@ -125,7 +125,7 @@ export default function BikeForm({ bike, onSuccess }: BikeFormProps) {
           bikePayload.createdAt = new Date();
       }
 
-      await addOrUpdateBike(db, bikePayload, bike?.id);
+      await addOrUpdateBike(firestore, bikePayload, bike?.id);
 
       toast({
         title: 'Success',

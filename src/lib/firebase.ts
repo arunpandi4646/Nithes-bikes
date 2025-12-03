@@ -19,20 +19,15 @@ type FirebaseInstances = {
   storage: FirebaseStorage;
 };
 
-let firebaseInstances: FirebaseInstances | null = null;
-
+// We don't use a memoized instance here to ensure fresh config on every init.
+// This helps prevent issues with stale project configurations.
 export const initializeFirebase = (): FirebaseInstances => {
-  if (firebaseInstances) {
-    return firebaseInstances;
-  }
-
   const app = !getApps().length ? initializeApp(firebaseConfig) : getApp();
   const auth = getAuth(app);
   const db = getFirestore(app);
   const storage = getStorage(app);
   
-  firebaseInstances = { app, auth, db, storage };
-  return firebaseInstances;
+  return { app, auth, db, storage };
 };
 
 

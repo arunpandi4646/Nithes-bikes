@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -52,9 +52,10 @@ const GoogleIcon = () => (
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
+  const [isJustLoggedIn, setJustLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { isAdmin } = useAppContext();
+  const { isAdmin, user, checkingAdmin } = useAppContext();
   const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -66,14 +67,35 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     },
   });
 
+  useEffect(() => {
+    // This effect runs after a user has just logged in.
+    // It waits until the admin check is complete.
+    if (isJustLoggedIn && user && !checkingAdmin) {
+      if (isAdmin) {
+        // If they are an admin, close the modal and redirect.
+        onClose();
+        router.push('/admin');
+      }
+      // Reset the flag so this doesn't run again.
+      setJustLoggedIn(false);
+    }
+  }, [isJustLoggedIn, user, isAdmin, checkingAdmin, router, onClose]);
+
+
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
       
-      // AppContext will handle isAdmin state and redirection
-      onClose();
+      // Set a flag to indicate a fresh login has occurred.
+      setJustLoggedIn(true);
+
+      // We no longer redirect from here directly. The useEffect will handle it.
+      // If the user is NOT an admin, the modal will just close.
+      if (!isAdmin) {
+        onClose();
+      }
     } catch (error: any) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Login Failed', description: error.message });
@@ -89,8 +111,10 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
       await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
 
-      // AppContext will handle isAdmin state and redirection
-      onClose();
+      setJustLoggedIn(true);
+       if (!isAdmin) {
+        onClose();
+      }
     } catch (error: any) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: error.message });

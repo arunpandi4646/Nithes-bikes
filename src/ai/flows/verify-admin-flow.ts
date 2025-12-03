@@ -33,7 +33,7 @@ const verifyAdminFlow = ai.defineFlow(
   async (input) => {
     // In a real application, you might check a database or use custom claims.
     // For now, we'll just check against a hardcoded admin UID.
-    const isAdmin = input.uid === 'CLpI38HrGGMwE7rfsH5eo19d8re2';
+    const isAdmin = input.uid === 'zMW1z5cRS1QbreKX16h1jNzoEm02';
     return { isAdmin };
   }
 );

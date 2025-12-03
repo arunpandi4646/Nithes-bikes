@@ -10,7 +10,7 @@ service cloud.firestore {
     function isAdmin() {
       // For now, we will identify admins by a specific UID.
       // In a real application, you should use custom claims.
-      return isAuth() && request.auth.uid == "CLpI38HrGGMwE7rfsH5eo19d8re2";
+      return isAuth() && request.auth.uid == "zMW1z5cRS1QbreKX16h1jNzoEm02";
     }
 
     // Bikes collection rules

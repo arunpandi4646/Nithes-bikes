@@ -25,9 +25,15 @@ export default function BikeCard({ bike }: BikeCardProps) {
   const { toast } = useToast();
 
   const handleInquiry = () => {
+    const whatsappNumber = '919360997425';
+    const messageText = `I'm interested in the ${bike.name}. Could you please provide more details?`;
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messageText)}`;
+    
+    window.open(whatsappUrl, '_blank');
+    
     toast({
-      title: 'Inquiry Sent!',
-      description: `Our team will contact you shortly about the ${bike.name}.`,
+      title: 'Redirecting to WhatsApp',
+      description: 'Your inquiry is ready to be sent.',
     });
   };
   

@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -69,15 +69,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
-      const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
+      await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
-      
-      const { isAdmin } = await verifyAdmin({ uid: userCredential.user.uid });
-
-      if (isAdmin) {
-        router.push('/admin');
-      }
-      
+      router.push('/admin'); // Redirect to admin, AppContext will handle verification
       onClose();
     } catch (error: any) {
       console.error(error);
@@ -91,15 +85,9 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      const result = await signInWithPopup(auth, provider);
+      await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
-
-      const { isAdmin } = await verifyAdmin({ uid: result.user.uid });
-      
-      if (isAdmin) {
-        router.push('/admin');
-      }
-
+      router.push('/admin'); // Redirect to admin, AppContext will handle verification
       onClose();
     } catch (error: any) {
       console.error(error);

@@ -6,6 +6,7 @@ import { onAuthStateChanged, type User } from 'firebase/auth';
 import { useAuth } from '@/firebase';
 import type { Section } from '@/lib/types';
 import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
+import { useRouter, usePathname } from 'next/navigation';
 
 interface AppContextType {
   activeSection: Section;
@@ -28,6 +29,8 @@ export function AppProvider({ children }: { children: ReactNode }) {
   const [isAdmin, setIsAdmin] = useState(false);
   const [checkingAdmin, setCheckingAdmin] = useState(true);
   const auth = useAuth();
+  const router = useRouter();
+  const pathname = usePathname();
 
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (currentUser) => {
@@ -37,8 +40,11 @@ export function AppProvider({ children }: { children: ReactNode }) {
       if (currentUser) {
         try {
           setCheckingAdmin(true);
-          const { isAdmin } = await verifyAdmin({ uid: currentUser.uid });
-          setIsAdmin(isAdmin);
+          const { isAdmin: isAdminResult } = await verifyAdmin({ uid: currentUser.uid });
+          setIsAdmin(isAdminResult);
+          if (isAdminResult && !pathname.startsWith('/admin')) {
+            router.push('/admin');
+          }
         } catch (error) {
           console.error("Error verifying admin status:", error);
           setIsAdmin(false);
@@ -51,7 +57,7 @@ export function AppProvider({ children }: { children: ReactNode }) {
       }
     });
     return () => unsubscribe();
-  }, [auth]);
+  }, [auth, pathname, router]);
 
   const setActiveSection = (section: Section) => {
     setActiveSectionState(section);

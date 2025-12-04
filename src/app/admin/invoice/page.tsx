@@ -6,6 +6,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Download, Loader2 } from 'lucide-react';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
+import Image from 'next/image';
 
 export default function InvoicePage() {
   const [loading, setLoading] = useState(false);
@@ -187,8 +188,13 @@ export default function InvoicePage() {
               {/* Signatures */}
               <div className="flex justify-end">
                 <div className="flex flex-col items-center">
-                    <div className="h-16 w-32">
-                      {/* Placeholder for signature image or just a line */}
+                    <div className="relative h-16 w-48">
+                      <Image
+                        src="https://placehold.co/200x60/black/white?text=Signature"
+                        alt="Signature"
+                        layout="fill"
+                        objectFit="contain"
+                      />
                     </div>
                     <div className='w-full border-t border-black pt-2 text-center'>
                       <p className="font-bold text-sm">NITHEESH GARAGE</p>

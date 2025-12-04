@@ -27,6 +27,7 @@ import { useAuth } from '@/firebase';
 import { signInWithEmailAndPassword, GoogleAuthProvider, signInWithPopup, sendPasswordResetEmail } from 'firebase/auth';
 import { Loader2, Eye, EyeOff } from 'lucide-react';
 import { useAppContext } from '@/contexts/AppContext';
+import { verifyAdmin } from '@/ai/flows/verify-admin-flow';
 
 const formSchema = z.object({
   email: z.string().email({ message: 'Invalid email address.' }),
@@ -52,10 +53,8 @@ const GoogleIcon = () => (
 export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
   const { toast } = useToast();
   const [loading, setLoading] = useState(false);
-  const [isJustLoggedIn, setJustLoggedIn] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const router = useRouter();
-  const { isAdmin, user, checkingAdmin } = useAppContext();
   const auth = useAuth();
 
   const form = useForm<z.infer<typeof formSchema>>({
@@ -67,35 +66,19 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     },
   });
 
-  useEffect(() => {
-    // This effect runs after a user has just logged in.
-    // It waits until the admin check is complete.
-    if (isJustLoggedIn && user && !checkingAdmin) {
-      if (isAdmin) {
-        // If they are an admin, close the modal and redirect.
-        onClose();
-        router.push('/admin');
-      }
-      // Reset the flag so this doesn't run again.
-      setJustLoggedIn(false);
-    }
-  }, [isJustLoggedIn, user, isAdmin, checkingAdmin, router, onClose]);
-
-
   async function onSubmit(values: z.infer<typeof formSchema>) {
     setLoading(true);
     try {
       const userCredential = await signInWithEmailAndPassword(auth, values.email, values.password);
       toast({ title: 'Success', description: 'Logged in successfully. Welcome back!' });
       
-      // Set a flag to indicate a fresh login has occurred.
-      setJustLoggedIn(true);
+      const { isAdmin } = await verifyAdmin({ uid: userCredential.user.uid });
 
-      // We no longer redirect from here directly. The useEffect will handle it.
-      // If the user is NOT an admin, the modal will just close.
-      if (!isAdmin) {
-        onClose();
+      if (isAdmin) {
+        router.push('/admin');
       }
+      
+      onClose();
     } catch (error: any) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Login Failed', description: error.message });
@@ -108,13 +91,16 @@ export default function LoginModal({ isOpen, onClose }: LoginModalProps) {
     setLoading(true);
     try {
       const provider = new GoogleAuthProvider();
-      await signInWithPopup(auth, provider);
+      const result = await signInWithPopup(auth, provider);
       toast({ title: 'Success', description: 'Logged in with Google successfully.' });
 
-      setJustLoggedIn(true);
-       if (!isAdmin) {
-        onClose();
+      const { isAdmin } = await verifyAdmin({ uid: result.user.uid });
+      
+      if (isAdmin) {
+        router.push('/admin');
       }
+
+      onClose();
     } catch (error: any) {
       console.error(error);
       toast({ variant: 'destructive', title: 'Google Sign-In Failed', description: error.message });

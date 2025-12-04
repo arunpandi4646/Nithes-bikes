@@ -26,7 +26,16 @@ export default function BikeCard({ bike }: BikeCardProps) {
 
   const handleInquiry = () => {
     const whatsappNumber = '919360997425';
-    const messageText = `I'm interested in the ${bike.name}. Could you please provide more details?`;
+    const messageText = `I'm interested in the following bike:
+
+*Name:* ${bike.name}
+*Price:* ₹${Number(bike.price).toLocaleString('en-IN')}
+*Features:* ${bike.features.join(', ')}
+
+*Description:* ${bike.description}
+
+Could you please provide more details?`;
+
     const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(messageText)}`;
     
     window.open(whatsappUrl, '_blank');

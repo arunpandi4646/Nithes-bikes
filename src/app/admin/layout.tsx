@@ -1,9 +1,9 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { usePathname, useRouter } from 'next/navigation';
 import { useAppContext } from '@/contexts/AppContext';
-import { FileText, Loader2, UploadCloud, Bike } from 'lucide-react';
+import { FileText, Loader2, UploadCloud, Bike, LogOut } from 'lucide-react';
 import {
   SidebarProvider,
   Sidebar,
@@ -17,10 +17,27 @@ import {
   SidebarFooter,
 } from '@/components/ui/sidebar';
 import Image from 'next/image';
+import { useAuth } from '@/firebase';
+import { signOut } from 'firebase/auth';
+import { useToast } from '@/hooks/use-toast';
 
 function AdminSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const { setActiveSection } = useAppContext();
+  const auth = useAuth();
+  const { toast } = useToast();
+  const router = useRouter();
+
+  const handleLogout = async () => {
+    try {
+      await signOut(auth);
+      toast({ title: 'Logged out successfully.' });
+      router.push('/');
+      setActiveSection('home');
+    } catch (error) {
+      toast({ variant: 'destructive', title: 'Logout failed.' });
+    }
+  };
 
   return (
     <SidebarProvider>
@@ -74,6 +91,12 @@ function AdminSidebar({ children }: { children: React.ReactNode }) {
                        View Site
                    </SidebarMenuButton>
                </SidebarMenuItem>
+               <SidebarMenuItem>
+                   <SidebarMenuButton onClick={handleLogout} tooltip="Log out from your account">
+                       <LogOut />
+                       Logout
+                   </SidebarMenuButton>
+               </SidebarMenuItem>
            </SidebarMenu>
         </SidebarFooter>
       </Sidebar>
@@ -100,8 +123,13 @@ export default function AdminLayout({
   useEffect(() => {
     const isChecking = authLoading || checkingAdmin;
     if (!isChecking) {
-      if (!user || !isAdmin) {
+      if (!user) { // If there's no user, redirect to home
         router.replace('/');
+      } else if (user && !isAdmin && window.location.pathname.startsWith('/admin')) { // If user is not admin and on admin page, redirect
+        router.replace('/');
+      } else if (user && isAdmin && !window.location.pathname.startsWith('/admin')) { // If admin is not on an admin page, redirect them
+        // This is commented out to prevent force redirect from main page
+        // router.replace('/admin');
       }
     }
   }, [user, authLoading, isAdmin, checkingAdmin, router]);
@@ -116,6 +144,7 @@ export default function AdminLayout({
   }
 
   if (!user || !isAdmin) {
+    // Return null or a redirect, but useEffect handles redirection
     return null; 
   }
 

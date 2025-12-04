@@ -20,6 +20,7 @@ import Image from 'next/image';
 
 function AdminSidebar({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
+  const { setActiveSection } = useAppContext();
 
   return (
     <SidebarProvider>
@@ -68,7 +69,7 @@ function AdminSidebar({ children }: { children: React.ReactNode }) {
         <SidebarFooter>
            <SidebarMenu>
                <SidebarMenuItem>
-                   <SidebarMenuButton href="/">
+                   <SidebarMenuButton href="/" onClick={() => setActiveSection('home')}>
                        <Bike />
                        View Site
                    </SidebarMenuButton>

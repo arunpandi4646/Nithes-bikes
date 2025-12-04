@@ -48,8 +48,9 @@ export default function InvoicePage() {
 
         // Restore original input fields
         originalValues.forEach(({ input, value }) => {
-          const span = invoiceElement.querySelector(`span[class="${input.className}"]`);
-          if (span && span.textContent === value) {
+          // A bit of a hacky way to find the span to replace, but should work for this case
+          const span = Array.from(invoiceElement.querySelectorAll('span')).find(s => s.className === input.className && s.textContent === value);
+          if (span) {
             span.parentNode?.replaceChild(input, span);
           }
         });
@@ -76,14 +77,14 @@ export default function InvoicePage() {
 
   const balance = total - advance;
 
-  const renderEditableField = (value: string | number, setter: (value: any) => void, placeholder: string, type: string = "text", isNumeric: boolean = false) => {
+  const renderEditableField = (value: string | number, setter: (value: any) => void, placeholder: string, type: string = "text", isNumeric: boolean = false, className: string = "") => {
     return (
         <input
             type={type}
             value={value}
             onChange={(e) => setter(isNumeric ? parseFloat(e.target.value) || 0 : e.target.value)}
             placeholder={placeholder}
-            className="w-full bg-transparent p-2 text-sm outline-none focus:bg-gray-100/50"
+            className={cn("w-full bg-transparent p-1 text-sm outline-none focus:bg-gray-100/50", className)}
         />
     )
   }
@@ -108,86 +109,65 @@ export default function InvoicePage() {
       <main className="mt-8">
         <Card className="shadow-lg">
           <CardContent className="p-2 sm:p-6 md:p-8">
-            <div ref={invoiceRef} className="bg-white p-4 sm:p-8 text-black">
+            <div ref={invoiceRef} className="bg-white p-8 text-black font-serif">
               {/* Header */}
-              <div className="mb-8 flex items-center justify-between">
-                <img
-                    src="https://res.cloudinary.com/dry3pzan6/image/upload/v1763628420/jiupro1owybvcqu9mrgo.png"
-                    alt="Nitheesh Garage Logo"
-                    width={80}
-                    height={80}
-                    crossOrigin="anonymous"
-                />
-                <div className="text-right">
-                    <h2 className="text-xl sm:text-2xl md:text-3xl font-bold tracking-wide">NITHEESH GARAGE</h2>
-                    <div className="ml-auto inline-block border-b-2 border-t-2 border-double border-black my-1 w-32 sm:w-48"></div>
-                    <p className="text-xs sm:text-sm">3, Anna Street, Pallapalayam (PO),</p>
-                    <p className="text-xs sm:text-sm">Mangalam Road - 641663</p>
-                    <p className="text-xs sm:text-sm">Phone: 93609 97425</p>
-                </div>
+              <div className="mb-8 text-center">
+                  <h2 className="text-3xl font-bold tracking-wider">NITHEESH GARAGE</h2>
+                  <div className='flex justify-center'>
+                    <p className="text-sm border-b-2 border-dotted border-black inline-block">3, Anna Street, Pallapalayam (PO),</p>
+                  </div>
+                  <p className="text-sm">Mangalam Road - 641663</p>
+                  <p className="text-sm">Phone: 93609 97425</p>
               </div>
 
-
               {/* Customer Details */}
-              <div className="mb-6 sm:mb-8">
-                <h3 className="text-base sm:text-lg font-bold mb-2">Customer Details</h3>
+              <div className="mb-8">
+                <h3 className="text-lg font-bold mb-2">Customer Details</h3>
                 <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Customer Name:</td>
-                      <td className="w-2/3">{renderEditableField(customerName, setCustomerName, 'Enter Name')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(customerName, setCustomerName, 'Enter Name', 'text', false, 'customer-name-field')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Address:</td>
-                      <td className="w-2/3">{renderEditableField(address, setAddress, 'Enter Address')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(address, setAddress, 'Enter Address', 'text', false, 'address-field')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Vehicle Number:</td>
-                      <td className="w-2/3">{renderEditableField(vehicleNo, setVehicleNo, 'Enter Vehicle No.')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(vehicleNo, setVehicleNo, 'Enter Vehicle No.', 'text', false, 'vehicle-no-field')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Chassis Number:</td>
-                      <td className="w-2/3">{renderEditableField(chassisNo, setChassisNo, 'Enter Chassis No.')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(chassisNo, setChassisNo, 'Enter Chassis No.', 'text', false, 'chassis-no-field')}</td>
                     </tr>
                     <tr className="border-b border-black">
                       <td className="w-1/3 border-r border-black p-2 font-medium">Engine Number:</td>
-                      <td className="w-2/3">{renderEditableField(engineNo, setEngineNo, 'Enter Engine No.')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(engineNo, setEngineNo, 'Enter Engine No.', 'text', false, 'engine-no-field')}</td>
                     </tr>
                     <tr>
                       <td className="w-1/3 border-r border-black p-2 font-medium">Timing:</td>
-                      <td className="w-2/3">{renderEditableField(timing, setTiming, 'Enter Timing')}</td>
+                      <td className="w-2/3 p-0">{renderEditableField(timing, setTiming, 'Enter Timing', 'text', false, 'timing-field')}</td>
                     </tr>
                   </tbody>
                 </table>
               </div>
 
               {/* Payment Details */}
-              <div className="mb-6 sm:mb-8">
-                <h3 className="text-base sm:text-lg font-bold mb-2">Payment Details</h3>
+              <div className="mb-8">
+                <h3 className="text-lg font-bold mb-2">Payment Details</h3>
                 <table className="w-full border-collapse border border-black text-sm">
                   <tbody>
                     <tr className="border-b border-black">
-                      <td className="w-1/3 border-r border-black p-2 font-medium">
-                        <div className="flex items-center">
-                          <span className="text-lg sm:text-xl mr-2">■</span> Total Amount:
-                        </div>
-                      </td>
-                      <td className="w-2/3">{renderEditableField(total, setTotal, '0', 'number', true)}</td>
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Total Amount:</td>
+                      <td className="w-2/3 p-0">{renderEditableField(total, setTotal, '0', 'number', true, 'total-field')}</td>
                     </tr>
                     <tr className="border-b border-black">
-                      <td className="w-1/3 border-r border-black p-2 font-medium">
-                        <div className="flex items-center">
-                          <span className="text-lg sm:text-xl mr-2">■</span> Advance Paid:
-                        </div>
-                      </td>
-                      <td className="w-2/3">{renderEditableField(advance, setAdvance, '0', 'number', true)}</td>
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Advance Paid:</td>
+                      <td className="w-2/3 p-0">{renderEditableField(advance, setAdvance, '0', 'number', true, 'advance-field')}</td>
                     </tr>
                     <tr>
-                      <td className="w-1/3 border-r border-black p-2 font-medium">
-                        <div className="flex items-center">
-                          <span className="text-lg sm:text-xl mr-2">■</span> Balance:
-                        </div>
-                      </td>
+                      <td className="w-1/3 border-r border-black p-2 font-medium">Balance:</td>
                       <td className="w-2/3 p-2 font-bold">₹{balance.toLocaleString('en-IN')}</td>
                     </tr>
                   </tbody>
@@ -195,23 +175,26 @@ export default function InvoicePage() {
               </div>
               
               {/* Terms & Conditions */}
-              <div className="mb-8 sm:mb-16">
-                  <h3 className="text-base sm:text-lg font-bold mb-2">Terms & Conditions</h3>
-                  <ul className="list-disc list-inside space-y-2 text-xs sm:text-sm">
+              <div className="mb-16">
+                  <h3 className="text-lg font-bold mb-2">Terms & Conditions</h3>
+                  <ul className="list-disc list-inside space-y-1 text-xs">
                       <li>After the vehicle has been delivered in proper running condition and after the customer has checked and accepted the vehicle, Nitheesh Garage will not be responsible for any further complaints regarding the same issue.</li>
                       <li>Customers must change their vehicle name transfer within 10 days from the delivery date. If not, the garage will not be responsible for any loss, or issues arising thereafter.</li>
+                      <li>If you decide to cancel the purchase after paying the advance amount, only 50% of the advance will be refunded.</li>
                   </ul>
               </div>
 
               {/* Signatures */}
-              <table className="w-full border-collapse border border-black text-xs sm:text-sm">
-                  <tbody>
-                      <tr className="h-20 sm:h-24">
-                          <td className="w-1/2 border-r border-black p-2 align-bottom">Customer signature:</td>
-                          <td className="w-1/2 p-2 align-bottom">Staff signature (NITHEESH GARAGE):</td>
-                      </tr>
-                  </tbody>
-              </table>
+              <div className="flex justify-end">
+                <div className="flex flex-col items-center">
+                    <div className="h-16 w-32">
+                      {/* Placeholder for signature image or just a line */}
+                    </div>
+                    <div className='w-full border-t border-black pt-2 text-center'>
+                      <p className="font-bold text-sm">NITHEESH GARAGE</p>
+                    </div>
+                </div>
+              </div>
 
             </div>
           </CardContent>
@@ -219,4 +202,8 @@ export default function InvoicePage() {
       </main>
     </div>
   );
+}
+
+function cn(...classes: (string | undefined | null | false)[]) {
+  return classes.filter(Boolean).join(' ');
 }

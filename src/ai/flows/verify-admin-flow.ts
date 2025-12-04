@@ -8,6 +8,8 @@
  */
 
 import { ai } from '@/ai/genkit';
+import { initializeFirebase } from '@/firebase';
+import { doc, getDoc } from 'firebase/firestore';
 import { z } from 'genkit';
 
 const VerifyAdminInputSchema = z.object({
@@ -30,10 +32,20 @@ const verifyAdminFlow = ai.defineFlow(
     inputSchema: VerifyAdminInputSchema,
     outputSchema: VerifyAdminOutputSchema,
   },
-  async (input) => {
-    // In a real application, you might check a database or use custom claims.
-    // For now, we'll just check against a hardcoded admin UID.
-    const isAdmin = input.uid === 'CLpI38HrGGMwE7rfsH5eo19d8re2';
-    return { isAdmin };
+  async ({ uid }) => {
+    try {
+      const { firestore } = initializeFirebase();
+      const adminRoleDoc = doc(firestore, 'roles_admin', uid);
+      const docSnap = await getDoc(adminRoleDoc);
+      
+      // The user is an admin if a document with their UID exists in the roles_admin collection.
+      const isAdmin = docSnap.exists();
+
+      return { isAdmin };
+    } catch (error) {
+      console.error('Error verifying admin status in flow:', error);
+      // In case of an error, default to not being an admin for security.
+      return { isAdmin: false };
+    }
   }
 );

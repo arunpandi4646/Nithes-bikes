@@ -190,7 +190,7 @@ export default function InvoicePage() {
                 <div className="flex flex-col items-center">
                     <div className="relative h-16 w-48">
                       <Image
-                        src="https://placehold.co/200x60/black/white?text=Signature"
+                        src="https://res.cloudinary.com/dry3pzan6/image/upload/v1764868517/gfcrppb42arkd8zdsptq.jpg"
                         alt="Signature"
                         layout="fill"
                         objectFit="contain"

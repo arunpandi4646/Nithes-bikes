@@ -3,7 +3,7 @@
 import Image from 'next/image';
 import { CheckCircle2 } from 'lucide-react';
 
-const aboutImageUrl = "https://images.unsplash.com/photo-1601758064237-8a0e61bc5ac1?w=800";
+const aboutImageUrl = "https://res.cloudinary.com/dry3pzan6/image/upload/v1764866072/ead9ydgmr7wotgexzdp7.jpg";
 
 const features = [
   'Wide selection of bikes from leading brands',

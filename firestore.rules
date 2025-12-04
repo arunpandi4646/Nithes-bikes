@@ -18,10 +18,7 @@
  * - /roles_admin: A lookup collection where the existence of a document indicates a user has admin privileges.
  *
  * Key Security Decisions:
- * - Admin status is not determined by a field on a user's profile, but by the
- *   existence of a document in the `/roles_admin/{userId}` collection. This is
- *   a highly secure and performant pattern that avoids extra reads (`get` calls)
- *   in other rules.
+ * - Admin status is determined by the authenticated user's email address.
  * - Listing all users is explicitly disallowed to protect user privacy.
  * - Contact inquiries are "write-only" for the public. Anyone can create one, but
  *   no one can see the submitted inquiries except for administrators.
@@ -62,11 +59,10 @@ service cloud.firestore {
     
     /**
      * Checks if the user is an administrator.
-     * Admin status is determined by the existence of a document in the 'roles_admin' collection
-     * with the user's UID as the document ID. This is a fast and secure lookup.
+     * Admin status is determined by matching the authenticated user's email.
      */
     function isAdmin() {
-      return isSignedIn() && exists(/databases/$(database)/documents/roles_admin/$(request.auth.uid));
+      return isSignedIn() && request.auth.token.email == "nitheeshgarage@gmail.com";
     }
 
     /**
